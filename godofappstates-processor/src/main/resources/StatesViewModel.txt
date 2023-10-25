@@ -1,0 +1,439 @@
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import stdio.godofappstates.core.domain.OperationType
+import stdio.godofappstates.core.util.InvalidArgumentException
+import stdio.godofappstates.core.util.NoFlowOfOperationStateFoundException
+import stdio.godofappstates.core.util.NoOperationStateFoundException
+import stdio.godofappstates.core.util.WrongGenericsAutoCastException
+import godofappstates.presentation.stateWrapper.StateWrapper
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import stdio.godofappstates.annotations.FunctionalityState
+import stdio.godofappstates.annotations.StillLoading
+import godofappstates.data.mapper.ToOperationStateMapper
+import java.util.LinkedList
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.jvm.ExperimentalReflectionOnLambdas
+import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.jvm.reflect
+
+
+/**
+ * StatesViewModel contains a StateFlow that broadcasts last operation state,
+ * and a method that launching operations and updating last operation state based on the response.
+ *
+ * Also StatesViewModel has methods for calling LoadableData requests with automatically setting Loading status
+ */
+open class StatesViewModel : ViewModel() {
+
+    private val _lastOperationStateWrapper = StateWrapper.mutableStateFlow<OperationState<Any>>()
+    val lastOperationStateWrapper = _lastOperationStateWrapper.asStateFlow()
+
+    private val requestsQueue = LinkedList<String>()
+
+
+    // State - LoadableData
+    /**
+     * Method for calling LoadableData requests, that automatically sets Loading status
+     * @param call lambda that returns LoadableData or parent of LoadableData
+     */
+    protected suspend fun <State> loadData(
+        call: suspend () -> State
+    ): StateFlow<State> {
+        val kType = call.reflect()?.returnType
+        if (isLoadableData(kType) == false) {
+            throw InvalidArgumentException(
+                expected = "LoadableData or LoadableData superclass",
+                found = kType,
+                advice = if (isFlow(kType)) "Use loadDataFlow() instead" else ""
+            )
+        }
+        val stateFlow = MutableStateFlow(LoadableData.Loading() as State)
+        viewModelScope.launch {// for asynchrony
+            val requestResult: State = call()
+            stateFlow.emit(requestResult)
+        }
+        return stateFlow
+    }
+
+    // Flow - LoadableData
+    /**
+     * Method for calling LoadableData requests, that automatically sets Loading status
+     * @param call lambda that returns flow of LoadableData or parent of LoadableData
+     */
+    protected suspend fun <State> loadDataFlow(
+        call: suspend () -> Flow<State>
+    ): StateFlow<State> {
+        val kType = call.reflect()?.returnType
+        if (isFlowOfLoadableData(kType) == false) {
+            throw InvalidArgumentException(
+                expected = "Flow of LoadableData or LoadableData superclass",
+                found = kType
+            )
+        }
+        val stateFlow = MutableStateFlow(LoadableData.Loading() as State)
+        viewModelScope.launch {// for asynchrony
+            call().collect {
+                stateFlow.emit(it)
+            }
+        }
+        return stateFlow
+    }
+
+
+    // executeOperation()
+    // __________________________________________________________________________________
+    /**
+     * Launches operations and updating last operation state based on the response.
+     *
+     * @param call Suspend fun that will be called here
+     * @param onSuccess An optional callback function that may be called for some ViewModel businesses
+     * @param type for auto cast. Believe, you don't want to write that long generic
+     *
+     * Example:
+     *
+     * ```
+     * PrivateUser::class
+     * ```
+     * @param operationType for loading
+     */
+    protected suspend fun <FlowOrState, T : Any> executeOperation(
+        call: suspend () -> FlowOrState,
+        type: KClass<T>,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+        onSuccess: (T) -> Unit = {},
+    ): FlowOrState {
+        val kType = call.reflect()?.returnType
+        return if (isFlow(kType)) {
+            flowExecuteOperation(
+                call as suspend () -> Flow<*>,
+                kType,
+                operationType,
+                onEmpty204,
+                onSuccess
+            ) as FlowOrState
+        } else {
+            stateExecuteOperation(
+                call,
+                kType,
+                operationType,
+                onEmpty204,
+                onSuccess
+            )
+        }
+    }
+
+    private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
+        call: suspend () -> State,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+        onSuccess: (T) -> Unit = {},
+    ): State {
+        if (isUnit(kType) == true) throw WrongGenericsAutoCastException()
+        if (isOperationState(kType) == false) {
+            throw NoOperationStateFoundException(kType)
+        }
+        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
+        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+            requestsQueue.offer(kType.toString())
+        }
+        var requestResult: State
+        val request = viewModelScope.async {
+            // Call launching
+            requestResult = call()
+
+            // Working with OperationState
+            val operationState = ToOperationStateMapper<State, T>().map(requestResult)
+            if (operationState is OperationState.Success<T>) onSuccess.invoke(operationState.data)
+            if (operationState is OperationState.Empty204) onEmpty204.invoke()
+            _lastOperationStateWrapper.value = StateWrapper(operationState)
+
+            requestResult
+        }
+        return getAwaitedResult(request)
+    }
+
+    /**
+     * Если use case отправляет какие-то промежуточные результаты
+     */
+    private suspend fun <@FunctionalityState State, T : Any> flowExecuteOperation(
+        call: suspend () -> Flow<State>,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+        onSuccess: (T) -> Unit = {},
+    ): StateFlow<State> {
+        if (isFlowOfUnit(kType) == true) throw WrongGenericsAutoCastException()
+        if (isFlowOfOperationState(kType) == false) {
+            throw NoFlowOfOperationStateFoundException(kType)
+        }
+        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
+        val mutableStateFlow = call().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = OperationState.Loading(operationType) as State
+        )
+        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+            requestsQueue.offer(kType.toString())
+        }
+        // иначе код выполняется синхронно
+        // и флоу вернется только когда весь этот участок будет пройден
+        viewModelScope.launch {
+            mutableStateFlow.collect { requestResult ->
+                val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
+                if (operationState is OperationState.Success) onSuccess.invoke(operationState.data as T)
+                if (operationState is OperationState.Empty204) onEmpty204.invoke()
+                _lastOperationStateWrapper.value = StateWrapper(operationState)
+                pollFromQueueForFlow(requestResult)
+                showLoadingForFlowIfNeed()
+            }
+        }
+        return mutableStateFlow
+    }
+
+
+    // executeEmptyOperation()
+    // __________________________________________________________________________________
+    /**
+     * If you are sure that method return 204 response code instead of 200.
+     *
+     * This method launches operations and updating last operation state based on the response.
+     *
+     * @param call Suspend fun that will be called here
+     * @param onEmpty204 An optional callback function that may be called for some ViewModel businesses
+     * @param operationType for loading
+     */
+    protected suspend fun <FlowOrState> executeEmptyOperation(
+        call: suspend () -> FlowOrState,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+    ): FlowOrState {
+        val kType = call.reflect()?.returnType
+        return if (isFlow(kType)) {
+            flowExecuteEmptyOperation(
+                call as suspend () -> Flow<*>,
+                kType,
+                operationType,
+                onEmpty204
+            ) as FlowOrState
+        } else {
+            stateExecuteEmptyOperation(call, kType, operationType, onEmpty204)
+        }
+    }
+
+    private suspend fun <@FunctionalityState State> stateExecuteEmptyOperation(
+        call: suspend () -> State,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+    ): State {
+        return stateExecuteEmptyOrWithDataIgnoringOperation(
+            call = call,
+            kType = kType,
+            operationType = operationType,
+            onSuccess = {},
+            onEmpty204 = { onEmpty204() })
+    }
+
+    private suspend fun <@FunctionalityState State> flowExecuteEmptyOperation(
+        call: suspend () -> Flow<State>,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+    ): Flow<State> {
+        return flowExecuteEmptyOrWithDataIgnoringOperation(
+            call = call,
+            kType = kType,
+            operationType = operationType,
+            onSuccess = {},
+            onEmpty204 = { onEmpty204() })
+    }
+
+
+    // executeOperationAndIgnoreData()
+    // __________________________________________________________________________________
+    /**
+     * If it doesn't matter to you what response data will be returned on success.
+     *
+     * This method launches operations and updating last operation state based on the response.
+     *
+     * @param call Suspend fun that will be called here
+     * @param onSuccess An optional callback function that may be called for some ViewModel businesses
+     * @param operationType for loading
+     */
+    protected suspend fun <FlowOrState> executeOperationAndIgnoreData(
+        call: suspend () -> FlowOrState,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onSuccess: () -> Unit = {}
+    ): FlowOrState {
+        val kType = call.reflect()?.returnType
+        return if (isFlow(kType)) {
+            flowExecuteOperationAndIgnoreData(
+                call as suspend () -> Flow<*>,
+                kType,
+                operationType,
+                onSuccess
+            ) as FlowOrState
+        } else {
+            stateExecuteOperationAndIgnoreData(call, kType, operationType, onSuccess)
+        }
+    }
+
+    private suspend fun <@FunctionalityState State> stateExecuteOperationAndIgnoreData(
+        call: suspend () -> State,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onSuccess: () -> Unit = {},
+    ): State {
+        return stateExecuteEmptyOrWithDataIgnoringOperation(
+            call = call,
+            kType = kType,
+            operationType = operationType,
+            onSuccess = { onSuccess() },
+            onEmpty204 = {})
+    }
+
+    private suspend fun <@FunctionalityState State> flowExecuteOperationAndIgnoreData(
+        call: suspend () -> Flow<State>,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onSuccess: () -> Unit = {},
+    ): Flow<State> {
+        return flowExecuteEmptyOrWithDataIgnoringOperation(
+            call = call,
+            kType = kType,
+            operationType = operationType,
+            onSuccess = { onSuccess() },
+            onEmpty204 = {})
+    }
+
+
+    // Slaves
+    // __________________________________________________________________________________
+    private suspend fun <@FunctionalityState State> stateExecuteEmptyOrWithDataIgnoringOperation(
+        call: suspend () -> State,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit,
+        onSuccess: () -> Unit,
+    ): State {
+        if (isUnit(kType) == true) throw WrongGenericsAutoCastException()
+        if (isOperationState(kType) == false) {
+            throw NoOperationStateFoundException(kType)
+        }
+        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
+        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+            requestsQueue.offer(kType.toString())
+        }
+        var requestResult: State
+        val request = viewModelScope.async {
+            // Call launching
+            requestResult = call()
+
+            // Working with OperationState
+            val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
+            if (operationState is OperationState.Success) onSuccess.invoke()
+            if (operationState is OperationState.Empty204) onEmpty204.invoke()
+            _lastOperationStateWrapper.value = StateWrapper(operationState)
+
+            requestResult
+        }
+        return getAwaitedResult(request)
+    }
+
+    private suspend fun <State> getAwaitedResult(request: Deferred<State>) = request.await().also {
+        requestsQueue.poll()
+        if (requestsQueue.isNotEmpty()) {
+            _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading())
+        }
+    }
+
+    private suspend fun <@FunctionalityState State> flowExecuteEmptyOrWithDataIgnoringOperation(
+        call: suspend () -> Flow<State>,
+        kType: KType?,
+        operationType: OperationType = OperationType.DefaultOperation,
+        onEmpty204: () -> Unit = {},
+        onSuccess: () -> Unit = {},
+    ): StateFlow<State> {
+        if (isFlowOfUnit(kType) == true) throw WrongGenericsAutoCastException()
+        if (isFlowOfOperationState(kType) == false) {
+            throw NoFlowOfOperationStateFoundException(kType)
+        }
+        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
+        val mutableStateFlow = call().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = OperationState.Loading(operationType) as State
+        )
+        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+            requestsQueue.offer(kType.toString())
+        }
+        // иначе код выполняется синхронно
+        // и флоу вернется только когда весь этот участок будет пройден
+        viewModelScope.launch {
+            mutableStateFlow.collect { requestResult ->
+                val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
+                if (operationState is OperationState.Success) onSuccess.invoke()
+                if (operationState is OperationState.Empty204) onEmpty204.invoke()
+                _lastOperationStateWrapper.value = StateWrapper(operationState)
+                pollFromQueueForFlow(requestResult)
+                showLoadingForFlowIfNeed()
+            }
+        }
+        return mutableStateFlow
+    }
+
+    // значит что конечный резульатат получен и можно очистить очередь
+    private fun <State> pollFromQueueForFlow(requestResult: State) {
+        if (requestResult!!::class.hasAnnotation<StillLoading>()) {
+            return
+        }
+        requestsQueue.poll()
+    }
+
+    private fun showLoadingForFlowIfNeed() {
+        if (requestsQueue.isNotEmpty()) {
+            // TODO мб складывать в requestsQueue как раз таки operationType,
+            //  но с другой стороны не у всех он указан
+            _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading())
+        }
+    }
+
+    private fun isUnit(kType: KType?) =
+        kType?.jvmErasure?.isSuperclassOf(Unit::class)
+
+    private fun isFlowOfUnit(kType: KType?) =
+        kType?.arguments?.first()?.type?.jvmErasure?.isSuperclassOf(
+            Unit::class
+        )
+
+    private fun isOperationState(kType: KType?) =
+        kType?.jvmErasure?.isSuperclassOf(OperationState::class)
+
+    private fun isFlowOfOperationState(kType: KType?) =
+        kType?.arguments?.first()?.type?.jvmErasure?.isSuperclassOf(
+            OperationState::class
+        )
+
+    private fun isFlow(kType: KType?) = kType?.classifier == Flow::class
+
+    private fun isLoadableData(kType: KType?) =
+        kType?.jvmErasure?.isSuperclassOf(LoadableData::class)
+
+    private fun isFlowOfLoadableData(kType: KType?) =
+        kType?.arguments?.first()?.type?.jvmErasure?.isSuperclassOf(
+            LoadableData::class
+        )
+}
