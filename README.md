@@ -6,7 +6,7 @@
 5. [Usage](#usage)
 
 ## About library
-The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
+This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
 
 ## Requirements
 1. Kotlin
