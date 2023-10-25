@@ -20,6 +20,12 @@ Simplifying, your architecture should be something like this.
 ![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/b592bb4c-6646-48a4-b445-b70858590dbf)
 If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repository Pattern
 
+What about (MVI + MVVM) architectural pattern?
+It will be hard.
+1. Ok, UI state smoothly transforms into ContentState (will talk about this later).
+2. And events (aka Intent) you can keep
+3. But UI Actions will have to be removed
+
 ## Setup
 
 In your settings.gradle
