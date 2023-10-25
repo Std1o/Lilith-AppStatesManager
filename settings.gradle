@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "GodOfAppStates"
 include ':app'
+include ':godofappstates-core'
+include ':godofappstates-processor'
+include ':godofappstates-annotations'

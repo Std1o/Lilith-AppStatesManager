@@ -12,6 +12,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/godofappstates-annotations" />
+            <option value="$PROJECT_DIR$/godofappstates-core" />
+            <option value="$PROJECT_DIR$/godofappstates-processor" />
           </set>
         </option>
       </GradleProjectSettings>
