@@ -16,6 +16,9 @@ The main idea of the library is easy work with states, automation of routine and
 5. 'org.jetbrains.kotlin.android' version '1.9.0'+
 
 ## Architecture requirements
+Simplifying, your architecture should be something like this.
+![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/b592bb4c-6646-48a4-b445-b70858590dbf)
+If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repository Pattern
 
 ## Setup
 
