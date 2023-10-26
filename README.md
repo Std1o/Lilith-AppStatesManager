@@ -17,7 +17,7 @@ This library created firstly for declarative UI (e.g. Jetpack Compose). The main
 4. Android Gradle plugin version 8+
 5. 'org.jetbrains.kotlin.android' version '1.9.0'+
 
-Compatibility with DI
+## Compatibility with DI
 1. Koin - 100%
 2. Hilt - Compatible when using a small workaround
 3. Dagger 2 - not tested
