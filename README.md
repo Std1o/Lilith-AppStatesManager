@@ -6,6 +6,8 @@
 5. [Architecture by using library](#architecture-by-using-library)
 6. [Setup](#setup)
 7. [Usage](#usage)
+    1. [Create your states](#create-your-states)
+    2. [Activate code generation](#activate-code-generation)
 
 ## About library
 This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
@@ -97,4 +99,43 @@ dependencies {
 }
 ```
 ## Usage
+### Create your states
+> [!NOTE]  
+> @FunctionalityState is a exclusively informational annotation, it does not carry any functionality
+> 
+> @OperationState is used for code generation
+
+To create your OperationState just create something like this:
+```Kotlin
+@OperationState
+sealed interface YourOperationState<out R> {
+    data class State1(val someData: SomeData) : YourOperationState<Nothing>
+    data object State2 : YourOperationState<Nothing>
+    data object State3 : YourOperationState<Nothing>
+}
+```
+All operation states must be in the same package.
+
+> [!IMPORTANT]  
+> You can create a hierarchy of your states, but keep in mind that it should be reverse.
+> 
+> Example:
+> 
+> <img width="542" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/e047952a-592c-47bb-91b8-f731ddb12f88">
+>
+> This is necessary so that you can substitute only those states that are needed in the hierarchy. This will be written in the Wiki later.
+
+> [!IMPORTANT]  
+> @OperationState annotation says that this state is parent for OperationState literally, not semantically (remember about the reverse hierarchy)
+> 
+> Therefore, for your hierarchy, you annotate only the state closest to the OperationState. That is, semantically it will be the second most basic state, but literally it will be second state after OperationState that is inherited from everyone
+> 
+> Here is example the generated OperationState looks like so that you understand better:
+> 
+> <img width="993" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/b3714d62-8b07-4068-86d7-83d9cd77b341">
+
+
+You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
+
+### Activate code generation
 Usage Documentation in writing process
