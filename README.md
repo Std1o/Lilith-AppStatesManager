@@ -2,8 +2,9 @@
 1. [About library](#about-library)
 2. [Requirements](#requirements)
 3. [Architecture requirements](#architecture-requirements)
-4. [Setup](#setup)
-5. [Usage](#usage)
+4. [Architecture by using library](#architecture-by-using-library)
+5. [Setup](#setup)
+6. [Usage](#usage)
 
 ## About library
 This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
@@ -17,7 +18,9 @@ This library created firstly for declarative UI (e.g. Jetpack Compose). The main
 
 ## Architecture requirements
 Simplifying, your architecture should be something like this.
-![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/b592bb4c-6646-48a4-b445-b70858590dbf)
+
+![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/94055f61-6e88-495e-be03-00dfa223df7a)
+
 If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repository Pattern
 
 What about (MVI + MVVM) architectural pattern?
@@ -25,6 +28,22 @@ It will be hard.
 1. Ok, UI state smoothly transforms into ContentState (will talk about this later).
 2. And events (aka Intent) you can keep
 3. But UI Actions will have to be removed
+
+## Architecture by using library
+Recommendation:
+1. Take a quick look at what the architecture will turn out to be in the end
+2. See what you need to do for this
+3. Go back to the diagram and take a closer look at what happened as a result
+
+As a result of using the library, you will get something like this architecture. It may be hard to understand, but it's simple to use. You practically don't have to do anything to get such an architecture.
+
+Don't delve into it yet. Read the usage item, then return to the diagram. After that, you can start reproduce [Usage](#usage)
+
+![god_of_app_states](https://github.com/Std1o/GodOfAppStates/assets/37378410/42c59515-4dc6-4e4f-ab5b-aafbe0d9df02)
+
+
+
+
 
 ## Setup
 
