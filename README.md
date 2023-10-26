@@ -1,10 +1,11 @@
 # God Of App States
 1. [About library](#about-library)
 2. [Requirements](#requirements)
-3. [Architecture requirements](#architecture-requirements)
-4. [Architecture by using library](#architecture-by-using-library)
-5. [Setup](#setup)
-6. [Usage](#usage)
+3. [Compatibility with DI](#compatibility-with-di)
+4. [Architecture requirements](#architecture-requirements)
+5. [Architecture by using library](#architecture-by-using-library)
+6. [Setup](#setup)
+7. [Usage](#usage)
 
 ## About library
 This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
@@ -15,6 +16,12 @@ This library created firstly for declarative UI (e.g. Jetpack Compose). The main
 3. Retrofit usage
 4. Android Gradle plugin version 8+
 5. 'org.jetbrains.kotlin.android' version '1.9.0'+
+
+Compatibility with DI
+1. Koin - 100%
+2. Hilt - Compatible when using a small workaround
+3. Dagger 2 - not tested
+4. Other DIs - there are no plans to check in the near future
 
 ## Architecture requirements
 Simplifying, your architecture should be something like this.
