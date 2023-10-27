@@ -7,7 +7,11 @@
 6. [Setup](#setup)
 7. [Usage](#usage)
     1. [OperationState generation](#operationstate-generation)
-    2. [Activate code generation](#activate-code-generation)
+    2. [LoadableData](#loadabledata)
+    3. [Activate code generation](#activate-code-generation)
+    4. [Adding new states](#adding-new-states)
+    5. [BaseRemoteDataSource](#baseremotedatasource)
+    6. [StatesViewModel](#statesviewmodel)
 
 ## About library
 This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
@@ -115,10 +119,10 @@ dependencies {
 To create your own functionality state with access to the base operations states (Success, Error, Loading,  Empty204, NoState) just create something like this:
 ```Kotlin
 @OperationState
-sealed interface YourOperationState<out R> {
-    data class State1(val someData: SomeData) : YourOperationState<Nothing>
-    data object State2 : YourOperationState<Nothing>
-    data object State3 : YourOperationState<Nothing>
+sealed interface YourFunctionalityState<out R> {
+    data class State1(val someData: SomeData) : YourFunctionalityState<Nothing>
+    data object State2 : YourFunctionalityState<Nothing>
+    data object State3 : YourFunctionalityState<Nothing>
 }
 ```
 All operation states must be in the same package.
@@ -139,5 +143,103 @@ You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/t
 >
 > For long-term states, create your own functionality states marked with an annotation.
 
+### LoadableData
+LoadableData is state of some view or composable fun. Thanks to it, the state of the component is isolated from the rest of the screen, which allows you to increase UX and contributes to the absence of collisions.
+
+To create a custom LoadableData, just mark your sealed interface with @LoadableData annotation:
+```Kotlin
+@LoadableData
+sealed interface CustomLoadableData<out R> {
+    data class State1(val someData: SomeData) : CustomLoadableData<Nothing>
+    data object State2 : CustomLoadableData<Nothing>
+    data object State3 : CustomLoadableData<Nothing>
+}
+```
+
+If you don't need a custom LoadableData yet, you can write it and delete it as soon as a useful one appears.
+
+```Kotlin
+@LoadableData
+sealed interface LoadableDataTrigger<out R>
+```
+> [!IMPORTANT]
+> A hierarchy here is also reversed
+
+LoadableData is used in ContentState. It looks something like this:
+```Kotlin
+@ContentState
+data class SomeContentState(
+    val someList: LoadableData<List<T>> = LoadableData.NoState,
+    val someImage: LoadableData<String> = LoadableData.NoState,
+    val someText: LoadableData<String> = LoadableData.NoState,
+    val someList2: LoadableData<List<K>> = LoadableData.NoState,
+)
+```
+
 ### Activate code generation
+When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
+
+To do this, mark your Application class with @AllStatesReadyToUse annotation.
+```Kotlin
+@AllStatesReadyToUse
+class App : Application()
+```
+
+If you have created an Application class just now, don't forget to specify it in manifest.
+
+<img width="265" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/6e3d9c3b-7f6f-4bcd-85e0-3dfacdcc6725">
+
+After that, rebuild your project. How to do this is written in the next section.
+
+### Adding new states
+During app development most likely you will need to create your own functionality states or custom LoadableData.
+
+To make basic states available for recently added annotated states, you need to "make module".
+
+<img width="554" alt="Снимок экрана 2023-10-27 в 20 44 41" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/36e4df4d-3cba-4115-9bed-f6ba7a7bf96c">
+
+If it doesn't help, then rebuild project
+
+<img width="498" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/85935610-54cf-477a-ba08-9bcfd168cb30">
+
+### BaseRemoteDataSource
+This class has 2 methods. To use them, inherit your RemoteDataSource from BaseRemoteDataSource.
+
+```Kotlin
+class RemoteDataSource(private val someRetrofitService: SomeRetrofitService) : BaseRemoteDataSource() {
+    // Your methods
+}
+```
+
+Method executeOperation() generates OperationState that contains a limited set of states for any request.
+
+Usage exmaple:
+```Kotlin
+override suspend fun signUp(request: SignUpReq) = executeOperation { mainService.signUp(request) }
+```
+To solve collisions when using multiple operations on screen, the result of which UI should react differently, you can specify OperationType.
+
+You don't have to worry about the Loading status collision, it's solved in StatesViewModel (we will talk about it later).
+
+Usage example:
+```Kotlin
+    override suspend fun createCourse(request: CourseCreationReq) =
+        executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
+```
+
+There is example of your OperationType:
+```Kotlin
+enum class CourseAddingOperations : OperationType {
+    CREATE_COURSE, JOIN_COURSE
+}
+```
+
+Method loadData() generates LoadableData that contains a limited set of loading data states.
+
+Usage example:
+```Kotlin
+override suspend fun getCourses() = loadData { mainService.getCourses() }
+```
+
+### StatesViewModel
 Usage Documentation in writing process
