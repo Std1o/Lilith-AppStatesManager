@@ -7,7 +7,7 @@
 6. [Setup](#setup)
 7. [Usage](#usage)
     1. [OperationState generation](#operationstate-generation)
-    2. [LoadableData](#loadabledata)
+    2. [LoadableData generation](#loadabledata-generation)
     3. [Activate code generation](#activate-code-generation)
     4. [Adding new states](#adding-new-states)
     5. [BaseRemoteDataSource](#baseremotedatasource)
@@ -143,7 +143,7 @@ You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/t
 >
 > For long-term states, create your own functionality states marked with an annotation.
 
-### LoadableData
+### LoadableData generation
 LoadableData is state of some view or composable fun. Thanks to it, the state of the component is isolated from the rest of the screen, which allows you to increase UX and contributes to the absence of collisions.
 
 To create a custom LoadableData, just mark your sealed interface with @LoadableData annotation:
