@@ -12,6 +12,12 @@
     4. [Adding new states](#adding-new-states)
     5. [BaseRemoteDataSource](#baseremotedatasource)
     6. [StatesViewModel](#statesviewmodel)
+        1. [loadData](#loaddata)
+        2. [loadDataFlow](#loaddataflow)
+        3. [executeOperation()]
+        4. [executeEmptyOperation()]
+        5. [executeOperationAndIgnoreData()]
+    7. [UI reaction to state](#ui-reaction-to-state)
 
 ## About library
 This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
@@ -242,4 +248,48 @@ override suspend fun getCourses() = loadData { mainService.getCourses() }
 ```
 
 ### StatesViewModel
+StatesViewModel contains a StateFlow that broadcasts last operation state, and a method that launching operations and updating last operation state based on the response.
+
+Also StatesViewModel has methods for calling LoadableData requests with automatically setting Loading status.
+
+#### loadData
+Method for calling LoadableData requests, that automatically sets Loading status.
+
+Params: call - lambda that returns LoadableData or parent of LoadableData.
+
+At first create a flow of ContentState and a variable to easily update the flow.
+
+Example:
+```Kotlin
+    private val _contentState = MutableStateFlow(CoursesContentState())
+    val contentState = _contentState.asStateFlow()
+    private var contentStateVar by stateFlowVar(_contentState)
+```
+Then you can call loadData().
+
+Usage example:
+```Kotlin
+        viewModelScope.launch {
+            loadData { repository.getCourses() }.collect {
+                // Where "courses" is LoadableData
+                contentStateVar = contentStateVar.copy(courses = it)
+            }
+        }
+```
+#### loadDataFlow
+Method for calling LoadableData requests, that automatically sets Loading status
+
+Params: call - lambda that returns flow of LoadableData or parent of LoadableData
+
+Usage example:
+```Kotlin
+        viewModelScope.launch {
+            // Here repository.getCourses() returns Flow of LoadableData
+            loadDataFlow { repository.getCourses() }.collect {
+                contentStateVar = contentStateVar.copy(courses = it)
+            }
+        }
+```
+
+### UI reaction to state
 Usage Documentation in writing process
