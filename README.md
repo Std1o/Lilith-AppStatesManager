@@ -6,7 +6,7 @@
 5. [Architecture by using library](#architecture-by-using-library)
 6. [Setup](#setup)
 7. [Usage](#usage)
-    1. [Create your states](#create-your-states)
+    1. [OperationState generation](#operationstate-generation)
     2. [Activate code generation](#activate-code-generation)
 
 ## About library
@@ -99,13 +99,20 @@ dependencies {
 }
 ```
 ## Usage
-### Create your states
+### OperationState generation
 > [!NOTE]  
-> @FunctionalityState is a exclusively informational annotation, it does not carry any functionality
-> 
-> @OperationState is used for code generation
+> To generate the OperationState, you need to create at least one functionality state marked with an annotation.
+>
+> Functionality state is a state that you create in your Use Cases if the OperationState states are not enough for you or if the state must be long-term.
+>
+> If you don't need your functionality state yet, you can write it and delete it as soon as a useful one appears.
+>
+> ```Kotlin
+> @OperationState
+> sealed interface OperationStateTrigger<out R>
+> ```
 
-To create your OperationState just create something like this:
+To create your own functionality state with access to the base operations states (Success, Error, Loading,  Empty204, NoState) just create something like this:
 ```Kotlin
 @OperationState
 sealed interface YourOperationState<out R> {
@@ -117,25 +124,20 @@ sealed interface YourOperationState<out R> {
 All operation states must be in the same package.
 
 > [!IMPORTANT]  
-> You can create a hierarchy of your states, but keep in mind that it should be reverse.
+> You can create a hierarchy of your states, but keep in mind that it should be reverse. [Why?](https://github.com/Std1o/GodOfAppStates/wiki/Reverse-hierarchy)
+> 
+> You need to mark  with an annotation only semantically base class in your hierarchy.
 > 
 > Example:
 > 
 > <img width="542" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/e047952a-592c-47bb-91b8-f731ddb12f88">
->
-> This is necessary so that you can substitute only those states that are needed in the hierarchy. This will be written in the Wiki later.
-
-> [!IMPORTANT]  
-> @OperationState annotation says that this state is parent for OperationState literally, not semantically (remember about the reverse hierarchy)
-> 
-> Therefore, for your hierarchy, you annotate only the state closest to the OperationState. That is, semantically it will be the second most basic state, but literally it will be second state after OperationState that is inherited from everyone
-> 
-> Here is example the generated OperationState looks like so that you understand better:
-> 
-> <img width="993" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/b3714d62-8b07-4068-86d7-83d9cd77b341">
-
 
 You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
+
+> [!IMPORTANT]
+> OperationState contains the result of operation and is not intended for long-term storage state.
+>
+> For long-term states, create your own functionality states marked with an annotation.
 
 ### Activate code generation
 Usage Documentation in writing process
