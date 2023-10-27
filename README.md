@@ -103,7 +103,7 @@ dependencies {
 > [!NOTE]  
 > To generate the OperationState, you need to create at least one functionality state marked with an annotation.
 >
-> Functionality state is a state that you create in your Use Cases if the OperationState states are not enough for you or if the state must be long-term.
+> Functionality state is a state that you create in your [Use Cases](https://developer.android.com/topic/architecture/domain-layer) if the OperationState states are not enough for you or if the state must be long-term.
 >
 > If you don't need your functionality state yet, you can write it and delete it as soon as a useful one appears.
 >
