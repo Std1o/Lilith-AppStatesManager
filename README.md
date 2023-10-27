@@ -14,9 +14,10 @@
     6. [StatesViewModel](#statesviewmodel)
         1. [loadData](#loaddata)
         2. [loadDataFlow](#loaddataflow)
-        3. [executeOperation()]
-        4. [executeEmptyOperation()]
-        5. [executeOperationAndIgnoreData()]
+        3. [executeOperation](#executeoperation)
+        4. [executeEmptyOperation](#executeemptyoperation)
+        5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
+        6. [Important information](#important-information)
     7. [UI reaction to state](#ui-reaction-to-state)
 
 ## About library
@@ -229,8 +230,8 @@ You don't have to worry about the Loading status collision, it's solved in State
 
 Usage example:
 ```Kotlin
-    override suspend fun createCourse(request: CourseCreationReq) =
-        executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
+override suspend fun createCourse(request: CourseCreationReq) =
+    executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
 ```
 
 There is example of your OperationType:
@@ -261,20 +262,20 @@ At first create a flow of ContentState and a variable to easily update the flow.
 
 Example:
 ```Kotlin
-    private val _contentState = MutableStateFlow(CoursesContentState())
-    val contentState = _contentState.asStateFlow()
-    private var contentStateVar by stateFlowVar(_contentState)
+private val _contentState = MutableStateFlow(CoursesContentState())
+val contentState = _contentState.asStateFlow()
+private var contentStateVar by stateFlowVar(_contentState)
 ```
 Then you can call loadData().
 
 Usage example:
 ```Kotlin
-        viewModelScope.launch {
-            loadData { repository.getCourses() }.collect {
-                // Where "courses" is LoadableData
-                contentStateVar = contentStateVar.copy(courses = it)
-            }
-        }
+viewModelScope.launch {
+    loadData { repository.getCourses() }.collect {
+        // Where "courses" is LoadableData
+        contentStateVar = contentStateVar.copy(courses = it)
+    }
+}
 ```
 #### loadDataFlow
 Method for calling LoadableData requests, that automatically sets Loading status
@@ -283,13 +284,93 @@ Params: call - lambda that returns flow of LoadableData or parent of LoadableDat
 
 Usage example:
 ```Kotlin
-        viewModelScope.launch {
-            // Here repository.getCourses() returns Flow of LoadableData
-            loadDataFlow { repository.getCourses() }.collect {
-                contentStateVar = contentStateVar.copy(courses = it)
-            }
-        }
+viewModelScope.launch {
+    // Here repository.getCourses() returns Flow of LoadableData
+    loadDataFlow { repository.getCourses() }.collect {
+        contentStateVar = contentStateVar.copy(courses = it)
+    }
+}
 ```
+
+#### executeOperation
+Launches operations and updating last operation state based on the response.
+
+<img width="585" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/a65f0800-3ffd-413a-aeca-966825e0e664">
+
+All "execute" methods can work with your functionality state. If current state is some state of OperationState it automatically send to lastOperationStateWrapper which is contained in StatesViewModel. Then method returns current state.
+
+Example:
+```Kotlin
+// Some functionality state if you need it
+private val _testStateWrapper = StateWrapper.mutableStateFlow<TestCreationState<Test>>()
+val testStateWrapper = _testStateWrapper.asStateFlow()
+
+// ...
+// ...
+
+viewModelScope.launch {
+    val requestResult =
+        executeOperation({ createTestUseCase(testCreationReq) }, Test::class)
+    _testStateWrapper.value = StateWrapper(requestResult)
+    // Here we don't use onSuccess callback because otherwise our assignment would be erased by the line above
+    // Actually you can assign this state in your UseCase
+    if (requestResult is OperationState.Success) {
+        _testStateWrapper.value =
+            StateWrapper(TestCreationState.Created(requestResult.data))
+    }
+}
+```
+In the previous example, lambda returned functionality state. You can also call this method passing lambda that returns flow of functionality state or OperationState.
+
+Example:
+```Kotlin
+viewModelScope.launch {
+    executeOperation(
+        call = { createCourseUseCase(name) },
+        operationType = CourseAddingOperations.CREATE_COURSE, // Optionally
+        type = defaultType // private val defaultType = CourseResponse::class
+    ) { courseResponse -> // onSuccess callback
+        addCourseToContent(courseResponse)
+    }.collect {
+        _lastValidationStateWrapper.value = StateWrapper(it)
+    }
+}
+```
+> [!NOTE]
+> All "execute" methods can take in functionality state, OperationState or flow of ever of both
+
+#### executeEmptyOperation
+If you are sure that method return 204 response code instead of 200.
+
+onEmpty204 - An optional callback function that may be called for some ViewModel businesses.
+
+Example:
+```Kotlin
+viewModelScope.launch {
+    executeEmptyOperation({ repository.deleteCourse(courseId) }) { // it's onEmpty204 callback
+        val newCourses = (contentStateVar.courses as LoadableData.Success)
+            .data.filter { it.id != courseId }
+        contentStateVar =
+            contentStateVar.copy(courses = LoadableData.Success(newCourses))
+    }.protect()
+}
+```
+We will talk about the protect() extension later.
+
+#### executeOperationAndIgnoreData
+If it doesn't matter to you what response data will be returned on success.
+
+Example:
+```Kotlin
+viewModelScope.launch {
+    val requestResult = executeOperationAndIgnoreData({ loginUseCase(email, password) }) {
+        navigateToCourses()
+    }
+    _loginStateWrapper.value = StateWrapper(requestResult)
+}
+```
+
+#### Important information
 
 ### UI reaction to state
 Usage Documentation in writing process
