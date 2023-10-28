@@ -19,9 +19,24 @@
         5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
         6. [Important information](#important-information)
     7. [UI reaction to state](#ui-reaction-to-state)
+    8. [StateWrapper for state resetting](#statewrapper-for-state-resetting)
+    9. [StillLoading annotation](#stillloading-annotation)
 
 ## About library
-This library created firstly for declarative UI (e.g. Jetpack Compose). The main idea of the library is easy work with states, automation of routine and all this without loss testability, flexibility and without increasing cohesion in the code
+This library created firstly for declarative UI (e.g. Jetpack Compose). But in theory it can also be used for Android Views.
+
+What does this library do?
+1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
+2. Automatically generates base states.
+3. Removes routine from ViewModel.
+4. Automatically solves problem with Loading state collisions. In addition, there is the mechanism that allows you to handle same state on the screen in different ways, depending on the request.
+5. Ideologically, it helps to create independent states for the components of the screen. For example, it is very easy to make skeletons with this approach.
+
+The library is flexibly combined with existing code. You can just not use library in some places.
+
+When using the library, it is important to adhere to the concept. The library helps to adhere it as much as possible with minimal effort.
+
+It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem) (8 screens out of 12 was rewritten from View to Compose ),  but for large projects it is not time-tested yet
 
 ## Requirements
 1. Kotlin
@@ -31,6 +46,10 @@ This library created firstly for declarative UI (e.g. Jetpack Compose). The main
 5. 'org.jetbrains.kotlin.android' version '1.9.0'+
 
 ## Compatibility with DI
+For DI you must use ksp intead of kapt.
+
+Just replace "kapt" with "ksp" in build.gradle of your module. Also you can see https://dagger.dev/dev-guide/ksp.html
+
 1. Koin - 100%
 2. Hilt - Compatible when using a small workaround
 3. Dagger 2 - not tested
@@ -46,14 +65,14 @@ If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repositor
 What about (MVI + MVVM) architectural pattern?
 It will be hard.
 1. Ok, UI state smoothly transforms into ContentState (will talk about this later).
-2. And events (aka Intent) you can keep
-3. But UI Actions will have to be removed
+2. And events (aka Intent) you can keep.
+3. But UI Actions will have to be removed.
 
 ## Architecture by using library
 Recommendation:
-1. Take a quick look at what the architecture will turn out to be in the end
-2. See what you need to do for this
-3. Go back to the diagram and take a closer look at what happened as a result
+1. Take a quick look at what the architecture will turn out to be in the end.
+2. See what you need to do for this.
+3. Go back to the diagram and take a closer look at what will be happened as a result.
 
 As a result of using the library, you will get something like this architecture. It may be hard to understand, but it's simple to use. You practically don't have to do anything to get such an architecture.
 
@@ -233,6 +252,7 @@ Usage example:
 override suspend fun createCourse(request: CourseCreationReq) =
     executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
 ```
+Then you can get OperationType in UI if state is Success, Error or Empty204.
 
 There is example of your OperationType:
 ```Kotlin
@@ -252,6 +272,14 @@ override suspend fun getCourses() = loadData { mainService.getCourses() }
 StatesViewModel contains a StateFlow that broadcasts last operation state, and a method that launching operations and updating last operation state based on the response.
 
 Also StatesViewModel has methods for calling LoadableData requests with automatically setting Loading status.
+
+> [!IMPORTANT]
+> If you use Hilt, create it in your ViewModels package and be sure not to forget to import generated StatesViewModel
+> ```Kotlin
+> @Suppress("unused")
+> class StatesViewModel : ViewModel()
+> ```
+> @HiltViewModel requires subclass of ViewModel. Hilt doesn't see our generated StatesViewModel so Hilt can't check it
 
 #### loadData
 Method for calling LoadableData requests, that automatically sets Loading status.
@@ -327,7 +355,7 @@ Example:
 viewModelScope.launch {
     executeOperation(
         call = { createCourseUseCase(name) },
-        operationType = CourseAddingOperations.CREATE_COURSE, // Optionally
+        operationType = CourseAddingOperations.CREATE_COURSE, // Optionally. You can define it to handle Loading states differently
         type = defaultType // private val defaultType = CourseResponse::class
     ) { courseResponse -> // onSuccess callback
         addCourseToContent(courseResponse)
@@ -371,6 +399,82 @@ viewModelScope.launch {
 ```
 
 #### Important information
+If you don't use either val/var or collect for the methods listed above, you need to call protect().
+
+Example:
+```Kotlin
+executeOperation({ createTestUseCase(testCreationReq) }, Test::class).protect()
+```
+This is necessary because otherwise kotlin compiler generates incorrect lambda return type in the invokeSuspend() method.
 
 ### UI reaction to state
-Usage Documentation in writing process
+Collecting of your states will look something like this:
+```Kotlin
+val contentState by viewModel.contentState.collectAsState() // Then you can use contentState.someLoadableData
+val lastOperationStateWrapper by viewModel.lastOperationStateWrapper.collectAsState() // This is in the StatesViewModel
+// Please don't check the states from OperationState by this val, there are lastOperationStateWrapper for this
+val loginStateWrapper by viewModel.loginStateWrapper.collectAsState() // example of functionality state
+```
+If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and paste this code there:
+```Kotlin
+/**
+ * Used for temporary and short-lived states caused by the last operation
+ * @param onLoading if you want override default loading
+ * @param onError if you want override on error default reaction
+ */
+@Composable
+fun <T> LastOperationStateUIHandler(
+    stateWrapper: StateWrapper<OperationState<T>>,
+    snackbarHostState: SnackbarHostState,
+    onLoading: ((OperationType) -> Unit)? = null,
+    onError: ((String, Int, OperationType) -> Unit)? = null
+) {
+    with(stateWrapper.uiState) {
+        when (this) {
+            is OperationState.Loading -> onLoading?.invoke(operationType) ?: LoadingIndicator()
+            is OperationState.Error -> {
+                LaunchedEffect(Unit) { // the key define when the block is relaunched
+                    onError?.invoke(exception, code, operationType)
+                        ?: snackbarHostState.showSnackbar(exception)
+                    stateWrapper.onReceive()
+                }
+            }
+
+            is OperationState.Empty204,
+            is OperationState.Success,
+            is OperationState.NoState -> {
+                // do nothing
+            }
+        }
+    }
+}
+```
+You can modify this function as you want.
+> [!NOTE]
+> This is a composable fun that handles OperationState.Loading and OperationState.Error.
+>
+> For Success and Empty204 states, it is recommended to perform actions in your ViewModel or set some state to your functionality state and work in the UI already with it.
+
+This part of the code is not included in the library, so not to make a dependency on Jetpack Compose.
+
+### StateWrapper for state resetting
+Library generates StateWrapper that is necessary in order for state to be resettable.
+
+Method onReceive() used to reset state. You can use it as a SingleEvent. However, you can reset the state later.
+
+For example, to reset the error in TextField inside onValueChange{}.
+
+### StillLoading annotation
+For states from UseCase. Mark with it if loader should be still shown. Note that in this case, UseCase must return flow.
+
+Example:
+```Kotlin
+@OperationState
+sealed interface ValidatableOperationState<out R> {
+    // ...
+    // ...
+    @StillLoading
+    data class SuccessfulValidation(val operationType: OperationType = OperationType.DefaultOperation) :
+        ValidatableOperationState<Nothing>
+}
+```
