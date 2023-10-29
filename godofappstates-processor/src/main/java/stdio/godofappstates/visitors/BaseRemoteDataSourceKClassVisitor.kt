@@ -38,7 +38,7 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |import stdio.godofappstates.core.domain.DataType
     |import stdio.godofappstates.core.domain.OperationType
     |
-    |open class BaseRemoteDataSource {
+    |abstract class BaseRemoteDataSource {
     |
     |    /**
     |     * Generates OperationState that contains a limited set of states for any request.
@@ -50,7 +50,7 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |     *
     |     * (For example: authorization with validation, registration with validation).
     |     */
-    |    suspend fun <T> executeOperation(
+    |    protected suspend fun <T> executeOperation(
     |        operationType: OperationType = OperationType.DefaultOperation,
     |        call: suspend () -> Response<T>
     |    ): OperationState<T> {
@@ -73,7 +73,7 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |    /**
     |     * Generates LoadableData that contains a limited set of loading data states
     |     */
-    |    suspend fun <T> loadData(
+    |    protected suspend fun <T> loadData(
     |        dataType: DataType = DataType.NotSpecified,
     |        call: suspend () -> Response<T>
     |    ): LoadableData<T> {

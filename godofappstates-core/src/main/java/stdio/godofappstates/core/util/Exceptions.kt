@@ -49,3 +49,6 @@ class InvalidArgumentException(expected: String, found: KType?, advice: String =
                 "\nFound: ${found?.classifier}" +
                 "\n $advice"
     )
+
+class StateResetIsForbiddenException(actualState: KType?, expectedState: String) :
+    RuntimeException("Current state $actualState is not $expectedState")

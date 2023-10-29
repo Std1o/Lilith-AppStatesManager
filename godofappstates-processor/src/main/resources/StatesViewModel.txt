@@ -5,7 +5,6 @@ import stdio.godofappstates.core.util.InvalidArgumentException
 import stdio.godofappstates.core.util.NoFlowOfOperationStateFoundException
 import stdio.godofappstates.core.util.NoOperationStateFoundException
 import stdio.godofappstates.core.util.WrongGenericsAutoCastException
-import godofappstates.presentation.stateWrapper.StateWrapper
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +17,13 @@ import kotlinx.coroutines.launch
 import stdio.godofappstates.annotations.FunctionalityState
 import stdio.godofappstates.annotations.StillLoading
 import godofappstates.data.mapper.ToOperationStateMapper
+import stdio.godofappstates.core.util.StateResetIsForbiddenException
 import java.util.LinkedList
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSuperclassOf
+import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.jvm.ExperimentalReflectionOnLambdas
 import kotlin.reflect.jvm.jvmErasure
 import kotlin.reflect.jvm.reflect
@@ -36,8 +37,8 @@ import kotlin.reflect.jvm.reflect
  */
 open class StatesViewModel : ViewModel() {
 
-    private val _lastOperationStateWrapper = StateWrapper.mutableStateFlow<OperationState<Any>>()
-    val lastOperationStateWrapper = _lastOperationStateWrapper.asStateFlow()
+    private val _lastOperationState = MutableStateFlow<OperationState<Any>>(OperationState.NoState)
+    val lastOperationState = _lastOperationState.asStateFlow()
 
     private val requestsQueue = LinkedList<String>()
 
@@ -145,8 +146,8 @@ open class StatesViewModel : ViewModel() {
         if (isOperationState(kType) == false) {
             throw NoOperationStateFoundException(kType)
         }
-        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
-        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+        _lastOperationState.value = OperationState.Loading(operationType)
+        if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
         var requestResult: State
@@ -158,7 +159,7 @@ open class StatesViewModel : ViewModel() {
             val operationState = ToOperationStateMapper<State, T>().map(requestResult)
             if (operationState is OperationState.Success<T>) onSuccess.invoke(operationState.data)
             if (operationState is OperationState.Empty204) onEmpty204.invoke()
-            _lastOperationStateWrapper.value = StateWrapper(operationState)
+            _lastOperationState.value = operationState
 
             requestResult
         }
@@ -179,13 +180,13 @@ open class StatesViewModel : ViewModel() {
         if (isFlowOfOperationState(kType) == false) {
             throw NoFlowOfOperationStateFoundException(kType)
         }
-        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
+        _lastOperationState.value = OperationState.Loading(operationType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = OperationState.Loading(operationType) as State
         )
-        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+        if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
         // иначе код выполняется синхронно
@@ -195,7 +196,7 @@ open class StatesViewModel : ViewModel() {
                 val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
                 if (operationState is OperationState.Success) onSuccess.invoke(operationState.data as T)
                 if (operationState is OperationState.Empty204) onEmpty204.invoke()
-                _lastOperationStateWrapper.value = StateWrapper(operationState)
+                _lastOperationState.value = operationState
                 pollFromQueueForFlow(requestResult)
                 showLoadingForFlowIfNeed()
             }
@@ -319,6 +320,26 @@ open class StatesViewModel : ViewModel() {
             onEmpty204 = {})
     }
 
+    // State resetting
+    // __________________________________________________________________________________
+    /**
+     * Call it to reset last operation state, when error was handled
+     */
+    fun onErrorReceived() {
+        if (lastOperationState.value !is OperationState.Error) {
+            throw StateResetIsForbiddenException(lastOperationState.value::class.starProjectedType, "OperationState.Error")
+        } else {
+            _lastOperationState.value = OperationState.NoState
+        }
+    }
+
+    /**
+     * Maybe this method will never be used, but it would be wrong not to give opportunity to reset state
+     */
+    protected fun resetLastOperationState() {
+        _lastOperationState.value = OperationState.NoState
+    }
+
 
     // Slaves
     // __________________________________________________________________________________
@@ -333,8 +354,8 @@ open class StatesViewModel : ViewModel() {
         if (isOperationState(kType) == false) {
             throw NoOperationStateFoundException(kType)
         }
-        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
-        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+        _lastOperationState.value = OperationState.Loading(operationType)
+        if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
         var requestResult: State
@@ -346,7 +367,7 @@ open class StatesViewModel : ViewModel() {
             val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
             if (operationState is OperationState.Success) onSuccess.invoke()
             if (operationState is OperationState.Empty204) onEmpty204.invoke()
-            _lastOperationStateWrapper.value = StateWrapper(operationState)
+            _lastOperationState.value = operationState
 
             requestResult
         }
@@ -356,7 +377,7 @@ open class StatesViewModel : ViewModel() {
     private suspend fun <State> getAwaitedResult(request: Deferred<State>) = request.await().also {
         requestsQueue.poll()
         if (requestsQueue.isNotEmpty()) {
-            _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading())
+            _lastOperationState.value = OperationState.Loading()
         }
     }
 
@@ -371,13 +392,13 @@ open class StatesViewModel : ViewModel() {
         if (isFlowOfOperationState(kType) == false) {
             throw NoFlowOfOperationStateFoundException(kType)
         }
-        _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading(operationType))
+        _lastOperationState.value = OperationState.Loading(operationType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = OperationState.Loading(operationType) as State
         )
-        if (_lastOperationStateWrapper.value.uiState is OperationState.Loading) {
+        if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
         // иначе код выполняется синхронно
@@ -387,7 +408,7 @@ open class StatesViewModel : ViewModel() {
                 val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
                 if (operationState is OperationState.Success) onSuccess.invoke()
                 if (operationState is OperationState.Empty204) onEmpty204.invoke()
-                _lastOperationStateWrapper.value = StateWrapper(operationState)
+                _lastOperationState.value = operationState
                 pollFromQueueForFlow(requestResult)
                 showLoadingForFlowIfNeed()
             }
@@ -407,7 +428,7 @@ open class StatesViewModel : ViewModel() {
         if (requestsQueue.isNotEmpty()) {
             // TODO мб складывать в requestsQueue как раз таки operationType,
             //  но с другой стороны не у всех он указан
-            _lastOperationStateWrapper.value = StateWrapper(OperationState.Loading())
+            _lastOperationState.value = OperationState.Loading()
         }
     }
 
