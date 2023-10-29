@@ -19,16 +19,13 @@
         5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
         6. [Important information](#important-information)
     7. [UI reaction to state](#ui-reaction-to-state)
-    8. [StateWrapper for state resetting](#statewrapper-for-state-resetting)
-    9. [StillLoading annotation](#stillloading-annotation)
+    8. [StillLoading annotation](#stillloading-annotation)
 
 ## About library
-This library created firstly for declarative UI (e.g. Jetpack Compose). But in theory it can also be used for Android Views.
-
 What does this library do?
 1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
 2. Automatically generates base states.
-3. Removes routine from ViewModel.
+3. Removes routine code from ViewModel. You will not have to worry about Loading and Error states.
 4. Automatically solves problem with Loading state collisions. In addition, there is the mechanism that allows you to handle same state on the screen in different ways, depending on the request.
 5. Ideologically, it helps to create independent states for the components of the screen. For example, it is very easy to make skeletons with this approach.
 
@@ -61,12 +58,6 @@ Simplifying, your architecture should be something like this.
 ![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/94055f61-6e88-495e-be03-00dfa223df7a)
 
 If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repository Pattern
-
-What about (MVI + MVVM) architectural pattern?
-It will be hard.
-1. Ok, UI state smoothly transforms into ContentState (will talk about this later).
-2. And events (aka Intent) you can keep.
-3. But UI Actions will have to be removed.
 
 ## Architecture by using library
 Recommendation:
@@ -118,9 +109,9 @@ Then add the dependencies
 dependencies {
 
     // God Of App States
-    implementation 'com.github.Std1o:GodOfAppStates:0.3.4'
+    implementation 'com.github.Std1o:GodOfAppStates:0.3.5'
     // it must be before Dagger2/Hilt ksp
-    ksp 'com.github.Std1o:GodOfAppStates:0.3.4'
+    ksp 'com.github.Std1o:GodOfAppStates:0.3.5'
 
     // Requirements
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -325,13 +316,13 @@ Launches operations and updating last operation state based on the response.
 
 <img width="585" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/a65f0800-3ffd-413a-aeca-966825e0e664">
 
-All "execute" methods can work with your functionality state. If current state is some state of OperationState it automatically send to lastOperationStateWrapper which is contained in StatesViewModel. Then method returns current state.
+All "execute" methods can work with your functionality state. If current state is some state of OperationState it automatically send to lastOperationState which is contained in StatesViewModel. Then method returns current state.
 
 Example:
 ```Kotlin
 // Some functionality state if you need it
-private val _testStateWrapper = StateWrapper.mutableStateFlow<TestCreationState<Test>>()
-val testStateWrapper = _testStateWrapper.asStateFlow()
+private val _testState = MutableStateFlow<TestCreationState<Test>>(OperationState.NoState)
+val testState = _testState.asStateFlow()
 
 // ...
 // ...
@@ -339,12 +330,11 @@ val testStateWrapper = _testStateWrapper.asStateFlow()
 viewModelScope.launch {
     val requestResult =
         executeOperation({ createTestUseCase(testCreationReq) }, Test::class)
-    _testStateWrapper.value = StateWrapper(requestResult)
+    _testState.value = requestResult
     // Here we don't use onSuccess callback because otherwise our assignment would be erased by the line above
     // Actually you can assign this state in your UseCase
     if (requestResult is OperationState.Success) {
-        _testStateWrapper.value =
-            StateWrapper(TestCreationState.Created(requestResult.data))
+        _testState.value = TestCreationState.Created(requestResult.data)
     }
 }
 ```
@@ -360,7 +350,7 @@ viewModelScope.launch {
     ) { courseResponse -> // onSuccess callback
         addCourseToContent(courseResponse)
     }.collect {
-        _lastValidationStateWrapper.value = StateWrapper(it)
+        _lastValidationState.value = it
     }
 }
 ```
@@ -394,7 +384,7 @@ viewModelScope.launch {
     val requestResult = executeOperationAndIgnoreData({ loginUseCase(email, password) }) {
         navigateToCourses()
     }
-    _loginStateWrapper.value = StateWrapper(requestResult)
+    _loginState.value = requestResult
 }
 ```
 
@@ -411,9 +401,9 @@ This is necessary because otherwise kotlin compiler generates incorrect lambda r
 Collecting of your states will look something like this:
 ```Kotlin
 val contentState by viewModel.contentState.collectAsState() // Then you can use contentState.someLoadableData
-val lastOperationStateWrapper by viewModel.lastOperationStateWrapper.collectAsState() // This is in the StatesViewModel
-// Please don't check the states from OperationState by this val, there are lastOperationStateWrapper for this
-val loginStateWrapper by viewModel.loginStateWrapper.collectAsState() // example of functionality state
+val lastOperationState by viewModel.lastOperationState.collectAsState() // This is in the StatesViewModel
+// Please don't check the states from OperationState by this val, there are lastOperationState for this
+val loginState by viewModel.loginState.collectAsState() // example of functionality state
 ```
 If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and paste this code there:
 ```Kotlin
@@ -424,19 +414,20 @@ If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and
  */
 @Composable
 fun <T> LastOperationStateUIHandler(
-    stateWrapper: StateWrapper<OperationState<T>>,
+    operationState: OperationState<T>,
+    onErrorReceived: () -> Unit,
     snackbarHostState: SnackbarHostState,
     onLoading: ((OperationType) -> Unit)? = null,
     onError: ((String, Int, OperationType) -> Unit)? = null
 ) {
-    with(stateWrapper.uiState) {
+    with(operationState) {
         when (this) {
             is OperationState.Loading -> onLoading?.invoke(operationType) ?: LoadingIndicator()
             is OperationState.Error -> {
-                LaunchedEffect(Unit) { // the key define when the block is relaunched
+                LaunchedEffect(Unit) {
                     onError?.invoke(exception, code, operationType)
                         ?: snackbarHostState.showSnackbar(exception)
-                    stateWrapper.onReceive()
+                    onErrorReceived()
                 }
             }
 
@@ -450,19 +441,21 @@ fun <T> LastOperationStateUIHandler(
 }
 ```
 You can modify this function as you want.
+
+Then just add this to your screen:
+```Kotlin
+LastOperationStateUIHandler(
+    lastOperationState,
+    { testsVM.onErrorReceived() },
+    snackbarHostState
+)
+```
 > [!NOTE]
 > This is a composable fun that handles OperationState.Loading and OperationState.Error.
 >
 > For Success and Empty204 states, it is recommended to perform actions in your ViewModel or set some state to your functionality state and work in the UI already with it.
 
 This part of the code is not included in the library, so not to make a dependency on Jetpack Compose.
-
-### StateWrapper for state resetting
-Library generates StateWrapper that is necessary in order for state to be resettable.
-
-Method onReceive() used to reset state. You can use it as a SingleEvent. However, you can reset the state later.
-
-For example, to reset the error in TextField inside onValueChange{}.
 
 ### StillLoading annotation
 For states from UseCase. Mark with it if loader should be still shown. Note that in this case, UseCase must return flow.
