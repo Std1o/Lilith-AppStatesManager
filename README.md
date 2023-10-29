@@ -24,8 +24,8 @@
 ## About library
 What does this library do?
 1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
-2. Automatically generates base states.
-3. Removes routine code from ViewModel. You will not have to worry about Loading and Error states.
+2. Automatically forms base states.
+3. Removes routine code from ViewModel. You will not have to worry about delivery of Loading and Error states. For your functionality states you can define a general reaction to these states and, if necessary, assign a specific reaction for screen, or different reactions by OperationType.
 4. Automatically solves problem with Loading state collisions. In addition, there is the mechanism that allows you to handle same state on the screen in different ways, depending on the request.
 5. Ideologically, it helps to create independent states for the components of the screen. For example, it is very easy to make skeletons with this approach.
 
@@ -69,11 +69,7 @@ As a result of using the library, you will get something like this architecture.
 
 Don't delve into it yet. Read the usage item, then return to the diagram. After that, you can start reproduce [Usage](#usage)
 
-![god_of_app_states](https://github.com/Std1o/GodOfAppStates/assets/37378410/42c59515-4dc6-4e4f-ab5b-aafbe0d9df02)
-
-
-
-
+![god_of_app_states](https://github.com/Std1o/GodOfAppStates/assets/37378410/56143f47-1710-43de-8325-7525e7471d28)
 
 ## Setup
 
@@ -471,3 +467,5 @@ sealed interface ValidatableOperationState<out R> {
         ValidatableOperationState<Nothing>
 }
 ```
+## License
+This project is licensed under the [Apache License, Version 2.0](https://github.com/Std1o/GodOfAppStates/blob/main/LICENSE)
