@@ -33,7 +33,7 @@ The library is flexibly combined with existing code. You can just not use librar
 
 When using the library, it is important to adhere to the concept. The library helps to adhere it as much as possible with minimal effort.
 
-It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem) (8 screens out of 12 was rewritten from View to Compose ),  but for large projects it is not time-tested yet
+It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem),  but for large projects it is not time-tested yet
 
 ## Requirements
 1. Kotlin
@@ -401,7 +401,7 @@ val lastOperationState by viewModel.lastOperationState.collectAsState() // This 
 // Please don't check the states from OperationState by this val, there are lastOperationState for this
 val loginState by viewModel.loginState.collectAsState() // example of functionality state
 ```
-If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and paste this code there:
+If you are using Jetpack Compose, just create UIReactionOnLastOperationState.kt and paste this code there:
 ```Kotlin
 /**
  * Used for temporary and short-lived states caused by the last operation
@@ -409,7 +409,7 @@ If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and
  * @param onError if you want override on error default reaction
  */
 @Composable
-fun <T> LastOperationStateUIHandler(
+fun <T> UIReactionOnLastOperationState(
     operationState: OperationState<T>,
     onErrorReceived: () -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -440,7 +440,7 @@ You can modify this function as you want.
 
 Then just add this to your screen:
 ```Kotlin
-LastOperationStateUIHandler(
+UIReactionOnLastOperationState(
     lastOperationState,
     { testsVM.onErrorReceived() },
     snackbarHostState
