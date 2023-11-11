@@ -25,7 +25,7 @@
 What does this library do?
 1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
 2. Automatically forms base states.
-3. Removes routine code from ViewModel. You will not have to worry about delivery of Loading and Error states. For your functionality states you can define a general reaction to these states and, if necessary, assign a specific reaction for screen, or different reactions by OperationType.
+3. Removes boilerplate code from ViewModel. You will not have to worry about delivery of Loading and Error states. For your functionality states you can define a general reaction to these states and, if necessary, assign a specific reaction for screen, or different reactions by OperationType.
 4. Automatically solves problem with Loading state collisions. In addition, there is the mechanism that allows you to handle same state on the screen in different ways, depending on the request.
 5. Ideologically, it helps to create independent states for the components of the screen. For example, it is very easy to make skeletons with this approach.
 
