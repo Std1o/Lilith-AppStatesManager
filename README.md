@@ -35,6 +35,8 @@ When using the library, it is important to adhere to the concept. The library he
 
 It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem),  but for large projects it is not time-tested yet
 
+Also you can se [wiki Simple OperationState explanation](https://github.com/Std1o/GodOfAppStates/wiki/Simple-OperationState-explanation)
+
 ## Requirements
 1. Kotlin
 2. compileSdk 34+ and targetSdk 34+
