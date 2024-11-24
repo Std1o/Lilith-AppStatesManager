@@ -55,7 +55,7 @@ open class StatesViewModel : ViewModel() {
     private val _events: MutableSharedFlow<OperationState<Any>> = MutableSharedFlow(
         replay = 0,
         extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.SUSPEND
     )
     val events = _lastOperationState.asSharedFlow()
 
@@ -397,24 +397,45 @@ open class StatesViewModel : ViewModel() {
         if (isOperationState(kType) == false) {
             throw NoOperationStateFoundException(kType)
         }
-        _lastOperationState.value = OperationState.Loading(operationType)
-        if (_lastOperationState.value is OperationState.Loading) {
-            requestsQueue.offer(kType.toString())
+        return if (kType?.hasAnnotation<SingleEvent>() == false) {
+            _lastOperationState.value = OperationState.Loading(operationType)
+            if (_lastOperationState.value is OperationState.Loading) {
+                requestsQueue.offer(kType.toString())
+            }
+            var requestResult: State
+            val request = viewModelScope.async {
+                // Call launching
+                requestResult = call()
+                // Working with OperationState
+                _lastOperationState.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
+                requestResult
+            }
+            getAwaitedResult(request)
+        } else {
+            _events.value = OperationState.Loading(operationType)
+            if (_events.value is OperationState.Loading) {
+                requestsQueue.offer(kType.toString())
+            }
+            var requestResult: State
+            val request = viewModelScope.async {
+                // Call launching
+                requestResult = call()
+                // Working with OperationState
+                _events.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
+                requestResult
+            }
+            getAwaitedResult(request)
         }
-        var requestResult: State
-        val request = viewModelScope.async {
-            // Call launching
-            requestResult = call()
+    }
 
-            // Working with OperationState
-            val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
-            if (operationState is OperationState.Success) onSuccess.invoke()
-            if (operationState is OperationState.Empty204) onEmpty204.invoke()
-            _lastOperationState.value = operationState
-
-            requestResult
-        }
-        return getAwaitedResult(request)
+    private suspend fun <State> buildOperationStateNoData(
+        requestResult: State, onEmpty204: () -> Unit = {},
+        onSuccess: () -> Unit = {},
+    ) : OperationState<Any> {
+        val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
+        if (operationState is OperationState.Success) onSuccess.invoke()
+        if (operationState is OperationState.Empty204) onEmpty204.invoke()
+        return operationState
     }
 
     private suspend fun <State> getAwaitedResult(request: Deferred<State>) = request.await().also {
