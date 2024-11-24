@@ -52,6 +52,7 @@ dependencies {
     implementation 'com.google.dagger:hilt-android:2.46.1'
     ksp "com.google.dagger:hilt-compiler:2.48"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.activity:activity-ktx:1.4.0'
 
     // Requirements
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
