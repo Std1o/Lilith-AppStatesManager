@@ -1,19 +1,26 @@
 package com.stdio.godofappstates.presentation.viewmodel;
 
 import androidx.lifecycle.viewModelScope
+import com.stdio.godofappstates.domain.operationState.MainScreenState
 import com.stdio.godofappstates.domain.operationState.OperationState
 import com.stdio.godofappstates.domain.operationState.protect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import godofappstates.presentation.viewmodel.StatesViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor() : StatesViewModel() {
 
+    private val _screenEvents = MutableStateFlow<MainScreenState<String>>(MainScreenState.Initial)
+    val screenEvents = _screenEvents.asStateFlow()
+
     init {
         makeRequest()
+        makeSingleRequest()
     }
 
     private fun makeRequest() {
@@ -24,8 +31,22 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
         }
     }
 
-    suspend fun fakeRequest(): OperationState<String> {
+    private fun makeSingleRequest() {
+        viewModelScope.launch {
+            val result = executeOperation(
+                { fakeRequestSingle() }, String.Companion::class.java::class
+            )
+            _screenEvents.value = result
+        }
+    }
+
+    private suspend fun fakeRequest(): OperationState<String> {
         delay(7000)
-        return OperationState.Success("Hello")
+        return OperationState.Success("All data has been uploaded successfully")
+    }
+
+    private suspend fun fakeRequestSingle(): MainScreenState<String> {
+        delay(7000)
+        return MainScreenState.ShowTextSingle("It's Single event")
     }
 }
