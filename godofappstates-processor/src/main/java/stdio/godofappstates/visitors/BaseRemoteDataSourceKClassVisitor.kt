@@ -52,7 +52,8 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |     */
     |    protected suspend fun <T> executeOperation(
     |        operationType: OperationType = OperationType.DefaultOperation,
-    |        call: suspend () -> Response<T>
+    |        call: suspend () -> Response<T>,
+    |        isSingleError: Boolean = true
     |    ): OperationState<T> {
     |        try {
     |            val response = withContext(Dispatchers.IO) { call() }
@@ -64,9 +65,9 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |                return OperationState.Empty204(response.code(), operationType)
     |            }
     |            val errorMessage = Utils.encodeErrorCode(response.errorBody())
-    |            return operationError(errorMessage, response.code())
+    |            return operationError(errorMessage, response.code(), isSingleError)
     |        } catch (e: Exception) {
-    |            return operationError(e.message ?: " ", -1)
+    |            return operationError(e.message ?: " ", -1, isSingleError)
     |        }
     |    }
     |
@@ -93,8 +94,9 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |        }
     |    }
     |
-    |    private fun <T> operationError(errorMessage: String, code: Int): OperationState<T> =
-    |        OperationState.Error(errorMessage, code)
+    |    private fun <T> operationError(errorMessage: String, code: Int, isSingleError: Boolean): OperationState<T> =
+    |        if (isSingleError) OperationState.ErrorSingle(errorMessage, code)
+    |        else OperationState.Error(errorMessage, code)
     |
     |    private fun <T> loadError(errorMessage: String, code: Int): LoadableData<T> =
     |        LoadableData.Error(errorMessage, code)
