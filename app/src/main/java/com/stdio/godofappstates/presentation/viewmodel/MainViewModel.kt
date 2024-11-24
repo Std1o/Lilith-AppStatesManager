@@ -21,8 +21,8 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
     val screenEvents = _screenEvents.asSharedFlow()
 
     init {
-        makeRequest()
         makeSingleRequest()
+        makeRequest()
     }
 
     private fun makeRequest() {
