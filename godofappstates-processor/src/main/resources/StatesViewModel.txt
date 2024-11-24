@@ -25,6 +25,7 @@ import stdio.godofappstates.annotations.FunctionalityState
 import stdio.godofappstates.annotations.SingleEvent
 import stdio.godofappstates.annotations.StillLoading
 import godofappstates.data.mapper.ToOperationStateMapper
+import kotlinx.coroutines.flow.asStateFlow
 import stdio.godofappstates.core.util.StateResetIsForbiddenException
 import java.util.LinkedList
 import kotlin.reflect.KClass
@@ -45,12 +46,8 @@ import kotlin.reflect.jvm.reflect
  */
 open class StatesViewModel : ViewModel() {
 
-    private val _lastOperationState: MutableSharedFlow<OperationState<Any>> = MutableSharedFlow(
-        replay = 1,
-        extraBufferCapacity = 0,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val lastOperationState = _lastOperationState.asSharedFlow()
+    private val _lastOperationState = MutableStateFlow<OperationState<Any>>(OperationState.NoState)
+    val lastOperationState = _lastOperationState.asStateFlow()
 
     private val _events: MutableSharedFlow<OperationState<Any>> = MutableSharedFlow(
         replay = 0,

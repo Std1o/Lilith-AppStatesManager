@@ -5,9 +5,11 @@ import com.stdio.godofappstates.domain.operationState.MainScreenState
 import com.stdio.godofappstates.domain.operationState.OperationState
 import com.stdio.godofappstates.domain.operationState.protect
 import dagger.hilt.android.lifecycle.HiltViewModel
+import godofappstates.domain.EventFlow
 import godofappstates.presentation.viewmodel.StatesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,8 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor() : StatesViewModel() {
 
-    private val _screenEvents = MutableStateFlow<MainScreenState<String>>(MainScreenState.Initial)
-    val screenEvents = _screenEvents.asStateFlow()
+    private val _screenEvents: EventFlow<MainScreenState<String>> = EventFlow()
+    val screenEvents = _screenEvents.asSharedFlow()
 
     init {
         makeRequest()
@@ -36,7 +38,7 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
             val result = executeOperation(
                 { fakeRequestSingle() }, String.Companion::class.java::class
             )
-            _screenEvents.value = result
+            _screenEvents.emit(result)
         }
     }
 

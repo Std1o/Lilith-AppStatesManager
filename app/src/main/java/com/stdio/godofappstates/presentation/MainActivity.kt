@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.stdio.godofappstates.R
+import com.stdio.godofappstates.domain.operationState.MainScreenState
 import com.stdio.godofappstates.domain.operationState.OperationState
 import com.stdio.godofappstates.presentation.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +28,24 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.text_view)
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.screenEvents.collect { uiState ->
+                    when (uiState) {
+                        is MainScreenState.Initial -> {}
+                        is MainScreenState.ShowText -> {}
+                        is MainScreenState.ShowTextSingle -> Toast.makeText(
+                            this@MainActivity,
+                            uiState.text,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        else -> {}
+                    }
+                }
+            }
+        }
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
