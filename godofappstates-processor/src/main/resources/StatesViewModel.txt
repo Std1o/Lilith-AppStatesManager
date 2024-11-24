@@ -6,15 +6,23 @@ import stdio.godofappstates.core.util.NoFlowOfOperationStateFoundException
 import stdio.godofappstates.core.util.NoOperationStateFoundException
 import stdio.godofappstates.core.util.WrongGenericsAutoCastException
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import stdio.godofappstates.annotations.FunctionalityState
+import stdio.godofappstates.annotations.SingleEvent
 import stdio.godofappstates.annotations.StillLoading
 import godofappstates.data.mapper.ToOperationStateMapper
 import stdio.godofappstates.core.util.StateResetIsForbiddenException
@@ -37,8 +45,19 @@ import kotlin.reflect.jvm.reflect
  */
 open class StatesViewModel : ViewModel() {
 
-    private val _lastOperationState = MutableStateFlow<OperationState<Any>>(OperationState.NoState)
-    val lastOperationState = _lastOperationState.asStateFlow()
+    private val _lastOperationState: MutableSharedFlow<OperationState<Any>> = MutableSharedFlow(
+        replay = 1,
+        extraBufferCapacity = 0,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val lastOperationState = _lastOperationState.asSharedFlow()
+
+    private val _events: MutableSharedFlow<OperationState<Any>> = MutableSharedFlow(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val events = _lastOperationState.asSharedFlow()
 
     private val requestsQueue = LinkedList<String>()
 
@@ -146,24 +165,45 @@ open class StatesViewModel : ViewModel() {
         if (isOperationState(kType) == false) {
             throw NoOperationStateFoundException(kType)
         }
-        _lastOperationState.value = OperationState.Loading(operationType)
-        if (_lastOperationState.value is OperationState.Loading) {
-            requestsQueue.offer(kType.toString())
+        return if (kType?.hasAnnotation<SingleEvent>() == false) {
+            _lastOperationState.value = OperationState.Loading(operationType)
+            if (_lastOperationState.value is OperationState.Loading) {
+                requestsQueue.offer(kType.toString())
+            }
+            var requestResult: State
+            val request = viewModelScope.async {
+                // Call launching
+                requestResult = call()
+                // Working with OperationState
+                _lastOperationState.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+                requestResult
+            }
+            getAwaitedResult(request)
+        } else {
+            _events.value = OperationState.Loading(operationType)
+            if (_events.value is OperationState.Loading) {
+                requestsQueue.offer(kType.toString())
+            }
+            var requestResult: State
+            val request = viewModelScope.async {
+                // Call launching
+                requestResult = call()
+                // Working with OperationState
+                _events.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+                requestResult
+            }
+            getAwaitedResult(request)
         }
-        var requestResult: State
-        val request = viewModelScope.async {
-            // Call launching
-            requestResult = call()
+    }
 
-            // Working with OperationState
-            val operationState = ToOperationStateMapper<State, T>().map(requestResult)
-            if (operationState is OperationState.Success<T>) onSuccess.invoke(operationState.data)
-            if (operationState is OperationState.Empty204) onEmpty204.invoke()
-            _lastOperationState.value = operationState
-
-            requestResult
-        }
-        return getAwaitedResult(request)
+    private suspend fun <State, T : Any> buildOperationState(
+        requestResult: State, onEmpty204: () -> Unit = {},
+        onSuccess: (T) -> Unit = {},
+    ) : OperationState<T> {
+        val operationState = ToOperationStateMapper<State, T>().map(requestResult)
+        if (operationState is OperationState.Success<T>) onSuccess.invoke(operationState.data)
+        if (operationState is OperationState.Empty204) onEmpty204.invoke()
+        return operationState
     }
 
     /**
@@ -327,7 +367,10 @@ open class StatesViewModel : ViewModel() {
      */
     fun onErrorReceived() {
         if (lastOperationState.value !is OperationState.Error) {
-            throw StateResetIsForbiddenException(lastOperationState.value::class.starProjectedType, "OperationState.Error")
+            throw StateResetIsForbiddenException(
+                lastOperationState.value::class.starProjectedType,
+                "OperationState.Error"
+            )
         } else {
             _lastOperationState.value = OperationState.NoState
         }
@@ -458,3 +501,26 @@ open class StatesViewModel : ViewModel() {
             LoadableData::class
         )
 }
+
+private var MutableSharedFlow<OperationState<Any>>.value: OperationState<Any>
+    set(value) {
+        tryEmit(value)
+    }
+    get() {
+        val instance = this
+        var result: OperationState<Any> = OperationState.NoState
+        CoroutineScope(Job() + Dispatchers.Unconfined).async {
+            result = instance.lastOrNull() ?: OperationState.NoState
+        }
+        return result
+    }
+
+private val SharedFlow<OperationState<Any>>.value: OperationState<Any>
+    get() {
+        val instance = this
+        var result: OperationState<Any> = OperationState.NoState
+        CoroutineScope(Job() + Dispatchers.Unconfined).async {
+            result = instance.lastOrNull() ?: OperationState.NoState
+        }
+        return result
+    }

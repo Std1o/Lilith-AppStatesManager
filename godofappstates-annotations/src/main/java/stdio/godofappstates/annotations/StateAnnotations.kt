@@ -40,3 +40,6 @@ annotation class StillLoading
 
 @Target(AnnotationTarget.CLASS)
 annotation class AllStatesReadyToUse
+
+@Target(AnnotationTarget.CLASS)
+annotation class SingleEvent
