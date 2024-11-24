@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor() : StatesViewModel() {
 
-    private val _screenEvents: EventFlow<MainScreenState<String>> = EventFlow()
+    private val _screenEvents = EventFlow<MainScreenState<String>>()
     val screenEvents = _screenEvents.asSharedFlow()
 
     init {
