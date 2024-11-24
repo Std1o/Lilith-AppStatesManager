@@ -198,8 +198,6 @@ data class SomeContentState(
 > 
 > Otherwise you will get uncorrected behavior!
 
-Otherwise you will get uncorrected behavior!
-
 ### Activate code generation
 When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
 
