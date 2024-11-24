@@ -25,7 +25,7 @@
 What does this library do?
 1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
 2. Automatically forms base states.
-3. Removes routine code from ViewModel. You will not have to worry about delivery of Loading and Error states. For your functionality states you can define a general reaction to these states and, if necessary, assign a specific reaction for screen, or different reactions by OperationType.
+3. Removes boilerplate code from ViewModel. You will not have to worry about delivery of Loading and Error states. For your functionality states you can define a general reaction to these states and, if necessary, assign a specific reaction for screen, or different reactions by OperationType.
 4. Automatically solves problem with Loading state collisions. In addition, there is the mechanism that allows you to handle same state on the screen in different ways, depending on the request.
 5. Ideologically, it helps to create independent states for the components of the screen. For example, it is very easy to make skeletons with this approach.
 
@@ -33,7 +33,9 @@ The library is flexibly combined with existing code. You can just not use librar
 
 When using the library, it is important to adhere to the concept. The library helps to adhere it as much as possible with minimal effort.
 
-It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem) (8 screens out of 12 was rewritten from View to Compose ),  but for large projects it is not time-tested yet
+It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem),  but for large projects it is not time-tested yet
+
+Also you can se [wiki Simple OperationState explanation](https://github.com/Std1o/GodOfAppStates/wiki/Simple-OperationState-explanation)
 
 ## Requirements
 1. Kotlin
@@ -401,7 +403,7 @@ val lastOperationState by viewModel.lastOperationState.collectAsState() // This 
 // Please don't check the states from OperationState by this val, there are lastOperationState for this
 val loginState by viewModel.loginState.collectAsState() // example of functionality state
 ```
-If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and paste this code there:
+If you are using Jetpack Compose, just create UIReactionOnLastOperationState.kt and paste this code there:
 ```Kotlin
 /**
  * Used for temporary and short-lived states caused by the last operation
@@ -409,7 +411,7 @@ If you are using Jetpack Compose, just create LastOperationStateUIHandler.kt and
  * @param onError if you want override on error default reaction
  */
 @Composable
-fun <T> LastOperationStateUIHandler(
+fun <T> UIReactionOnLastOperationState(
     operationState: OperationState<T>,
     onErrorReceived: () -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -440,7 +442,7 @@ You can modify this function as you want.
 
 Then just add this to your screen:
 ```Kotlin
-LastOperationStateUIHandler(
+UIReactionOnLastOperationState(
     lastOperationState,
     { testsVM.onErrorReceived() },
     snackbarHostState
