@@ -19,8 +19,18 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
     val screenEvents = _screenEvents.asSharedFlow()
 
     init {
+        //test()
+        testErrors()
+    }
+
+    private fun test() {
         makeSingleRequest()
         makeRequest()
+    }
+
+    private fun testErrors() {
+        makeSingleErrorRequest()
+        makeErrorRequest()
     }
 
     private fun makeRequest() {
@@ -40,6 +50,23 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
         }
     }
 
+    private fun makeErrorRequest() {
+        viewModelScope.launch {
+            executeOperation(
+                { fakeRequestError() }, String.Companion::class.java::class
+            ).protect()
+        }
+    }
+
+    private fun makeSingleErrorRequest() {
+        viewModelScope.launch {
+            val result = executeOperation(
+                { fakeRequestSingleError() }, String.Companion::class.java::class
+            )
+            _screenEvents.emit(result)
+        }
+    }
+
     private suspend fun fakeRequest(): OperationState<String> {
         delay(7000)
         return OperationState.Success("All data has been uploaded successfully")
@@ -48,5 +75,15 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
     private suspend fun fakeRequestSingle(): MainScreenEvents<String> {
         delay(7000)
         return MainScreenEvents.ShowSuccessToast("It's Single event")
+    }
+
+    private suspend fun fakeRequestError(): OperationState<String> {
+        delay(7000)
+        return OperationState.Error("All data has been uploaded successfully")
+    }
+
+    private suspend fun fakeRequestSingleError(): MainScreenEvents<String> {
+        delay(7000)
+        return OperationState.ErrorSingle("Something went wrong")
     }
 }

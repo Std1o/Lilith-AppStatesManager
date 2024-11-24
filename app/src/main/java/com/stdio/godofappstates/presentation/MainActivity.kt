@@ -25,7 +25,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initCollectors()
+    }
 
+    private fun initCollectors() {
         val textView = findViewById<TextView>(R.id.text_view)
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
@@ -33,9 +36,17 @@ class MainActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.screenEvents.collect { uiState ->
                     when (uiState) {
-                        is MainScreenEvents.ShowSuccessToast -> Toast.makeText(
+                        is MainScreenEvents.ShowSuccessToast -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                uiState.text,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        is OperationState.ErrorSingle -> Toast.makeText(
                             this@MainActivity,
-                            uiState.text,
+                            uiState.exception,
                             Toast.LENGTH_SHORT
                         ).show()
 
@@ -55,6 +66,7 @@ class MainActivity : AppCompatActivity() {
                         is OperationState.Loading -> textView.text = "Loading..."
                         is OperationState.NoState -> {}
                         is OperationState.Success -> textView.text = "Success"
+                        else -> {}
                     }
                 }
             }
