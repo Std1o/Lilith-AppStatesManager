@@ -8,18 +8,19 @@
 7. [Usage](#usage)
     1. [OperationState generation](#operationstate-generation)
     2. [LoadableData generation](#loadabledata-generation)
-    3. [Activate code generation](#activate-code-generation)
-    4. [Adding new states](#adding-new-states)
-    5. [BaseRemoteDataSource](#baseremotedatasource)
-    6. [StatesViewModel](#statesviewmodel)
+    3. [Making single Events](#making-single-events)
+    4. [Activate code generation](#activate-code-generation)
+    5. [Adding new states](#adding-new-states)
+    6. [BaseRemoteDataSource](#baseremotedatasource)
+    7. [StatesViewModel](#statesviewmodel)
         1. [loadData](#loaddata)
         2. [loadDataFlow](#loaddataflow)
         3. [executeOperation](#executeoperation)
         4. [executeEmptyOperation](#executeemptyoperation)
         5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
         6. [Important information](#important-information)
-    7. [UI reaction to state](#ui-reaction-to-state)
-    8. [StillLoading annotation](#stillloading-annotation)
+    8. [UI reaction to state](#ui-reaction-to-state)
+    9. [StillLoading annotation](#stillloading-annotation)
 
 ## About library
 What does this library do?
@@ -190,6 +191,12 @@ data class SomeContentState(
     val someList2: LoadableData<List<K>> = LoadableData.NoState,
 )
 ```
+
+### Making single Events
+> [!IMPORTANT]  
+> If methods with executeOperation of any kind follow each other, make sure that the method using EventFlow is called earlier.
+> 
+> Otherwise you will get uncorrected behavior!
 
 ### Activate code generation
 When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
