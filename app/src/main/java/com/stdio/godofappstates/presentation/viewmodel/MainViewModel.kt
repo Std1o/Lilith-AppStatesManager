@@ -2,6 +2,7 @@ package com.stdio.godofappstates.presentation.viewmodel;
 
 import androidx.lifecycle.viewModelScope
 import com.stdio.godofappstates.domain.operationState.MainScreenEvents
+import com.stdio.godofappstates.domain.operationState.MainScreenEventsChild
 import com.stdio.godofappstates.domain.operationState.OperationState
 import com.stdio.godofappstates.domain.operationState.protect
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor() : StatesViewModel() {
 
-    private val _screenEvents = EventFlow<MainScreenEvents<String>>()
+    private val _screenEvents = EventFlow<MainScreenEventsChild<String>>()
     val screenEvents = _screenEvents.asSharedFlow()
 
     init {
@@ -72,17 +73,17 @@ class MainViewModel @Inject constructor() : StatesViewModel() {
         return OperationState.Success("All data has been uploaded successfully")
     }
 
-    private suspend fun fakeRequestSingle(): MainScreenEvents<String> {
+    private suspend fun fakeRequestSingle(): MainScreenEventsChild<String> {
         delay(7000)
-        return MainScreenEvents.ShowSuccessToast("It's Single event")
+        return MainScreenEventsChild.ShowSuccessToast("It's Single event")
     }
 
     private suspend fun fakeRequestError(): OperationState<String> {
         delay(7000)
-        return OperationState.Error("All data has been uploaded successfully")
+        return OperationState.Error("Something went wrong")
     }
 
-    private suspend fun fakeRequestSingleError(): MainScreenEvents<String> {
+    private suspend fun fakeRequestSingleError(): MainScreenEventsChild<String> {
         delay(7000)
         return OperationState.ErrorSingle("Something went wrong")
     }

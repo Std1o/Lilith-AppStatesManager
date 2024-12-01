@@ -43,3 +43,6 @@ annotation class AllStatesReadyToUse
 
 @Target(AnnotationTarget.CLASS)
 annotation class SingleEvent
+
+@Target(AnnotationTarget.CLASS)
+annotation class SingleEvents

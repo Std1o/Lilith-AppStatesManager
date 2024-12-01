@@ -26,6 +26,7 @@ import stdio.godofappstates.annotations.SingleEvent
 import stdio.godofappstates.annotations.StillLoading
 import godofappstates.data.mapper.ToOperationStateMapper
 import kotlinx.coroutines.flow.asStateFlow
+import stdio.godofappstates.annotations.SingleEvents
 import stdio.godofappstates.core.util.StateResetIsForbiddenException
 import java.util.LinkedList
 import kotlin.reflect.KClass
@@ -33,6 +34,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.ExperimentalReflectionOnLambdas
 import kotlin.reflect.jvm.jvmErasure
 import kotlin.reflect.jvm.reflect
@@ -162,7 +164,13 @@ open class StatesViewModel : ViewModel() {
         if (isOperationState(kType) == false) {
             throw NoOperationStateFoundException(kType)
         }
-        return if (kType?.hasAnnotation<SingleEvent>() == false) {
+
+        var firstParent = kType?.jvmErasure?.superclasses
+        firstParent = firstParent?.filter {
+            it.hasAnnotation<SingleEvents>() == true
+        }
+        val isSingle = firstParent?.isNotEmpty() ?: false
+        return if (kType?.hasAnnotation<SingleEvent>() == false && isSingle) {
             _lastOperationState.value = OperationState.Loading(operationType)
             if (_lastOperationState.value is OperationState.Loading) {
                 requestsQueue.offer(kType.toString())
@@ -394,7 +402,12 @@ open class StatesViewModel : ViewModel() {
         if (isOperationState(kType) == false) {
             throw NoOperationStateFoundException(kType)
         }
-        return if (kType?.hasAnnotation<SingleEvent>() == false) {
+        var firstParent = kType?.jvmErasure?.superclasses
+        firstParent = firstParent?.filter {
+            it.hasAnnotation<SingleEvents>() == true
+        }
+        val isSingle = firstParent?.isNotEmpty() ?: false
+        return if (kType?.hasAnnotation<SingleEvent>() == false && isSingle) {
             _lastOperationState.value = OperationState.Loading(operationType)
             if (_lastOperationState.value is OperationState.Loading) {
                 requestsQueue.offer(kType.toString())

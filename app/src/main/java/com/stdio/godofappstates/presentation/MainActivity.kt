@@ -36,17 +36,15 @@ class MainActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.screenEvents.collect { uiState ->
                     when (uiState) {
-                        is MainScreenEvents.ShowSuccessToast -> {
-                            Toast.makeText(
-                                this@MainActivity,
-                                uiState.text,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        is OperationState.Error -> Toast.makeText(
+                            this@MainActivity,
+                            uiState.exception,
+                            Toast.LENGTH_SHORT
+                        ).show()
 
                         is OperationState.ErrorSingle -> Toast.makeText(
                             this@MainActivity,
-                            uiState.exception,
+                            "TADA!",
                             Toast.LENGTH_SHORT
                         ).show()
 
