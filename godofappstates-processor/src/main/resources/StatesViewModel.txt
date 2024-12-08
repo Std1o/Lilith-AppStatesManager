@@ -150,7 +150,7 @@ open class StatesViewModel : ViewModel() {
         }
     }
 
-    private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
+private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
         call: suspend () -> State,
         kType: KType?,
         operationType: OperationType = OperationType.DefaultOperation,
@@ -163,35 +163,23 @@ open class StatesViewModel : ViewModel() {
         }
 
         val isSingle = isSealedInterfaceSingle(kType)
-        return if (kType?.hasAnnotation<SingleEvent>() == false && !isSingle) {
-            _lastOperationState.value = OperationState.Loading(operationType)
-            if (_lastOperationState.value is OperationState.Loading) {
-                requestsQueue.offer(kType.toString())
-            }
-            var requestResult: State
-            val request = viewModelScope.async {
-                // Call launching
-                requestResult = call()
-                // Working with OperationState
-                _lastOperationState.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
-                requestResult
-            }
-            getAwaitedResult(request)
-        } else {
-            _events.value = OperationState.Loading(operationType)
-            if (_events.value is OperationState.Loading) {
-                requestsQueue.offer(kType.toString())
-            }
-            var requestResult: State
-            val request = viewModelScope.async {
-                // Call launching
-                requestResult = call()
-                // Working with OperationState
-                _events.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
-                requestResult
-            }
-            getAwaitedResult(request)
+        _lastOperationState.value = OperationState.Loading(operationType)
+        if (_lastOperationState.value is OperationState.Loading) {
+            requestsQueue.offer(kType.toString())
         }
+        var requestResult: State
+        val request = viewModelScope.async {
+            // Call launching
+            requestResult = call()
+            _lastOperationState.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+            requestResult?.let {
+                if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
+                    _events.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+                }
+            }
+            requestResult
+        }
+        return getAwaitedResult(request)
     }
 
     private suspend fun <State, T : Any> buildOperationState(
@@ -397,35 +385,24 @@ open class StatesViewModel : ViewModel() {
         }
 
         val isSingle = isSealedInterfaceSingle(kType)
-        return if (kType?.hasAnnotation<SingleEvent>() == false && !isSingle) {
             _lastOperationState.value = OperationState.Loading(operationType)
             if (_lastOperationState.value is OperationState.Loading) {
                 requestsQueue.offer(kType.toString())
             }
             var requestResult: State
             val request = viewModelScope.async {
-                // Call launching
-                requestResult = call()
-                // Working with OperationState
-                _lastOperationState.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
-                requestResult
+            // Call launching
+            requestResult = call()
+            // Working with OperationState
+            _lastOperationState.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
+            requestResult?.let {
+                if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
+                    _events.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
+                }
             }
-            getAwaitedResult(request)
-        } else {
-            _events.value = OperationState.Loading(operationType)
-            if (_events.value is OperationState.Loading) {
-                requestsQueue.offer(kType.toString())
+            requestResult
             }
-            var requestResult: State
-            val request = viewModelScope.async {
-                // Call launching
-                requestResult = call()
-                // Working with OperationState
-                _events.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
-                requestResult
-            }
-            getAwaitedResult(request)
-        }
+            return getAwaitedResult(request)
     }
 
     private fun isSealedInterfaceSingle(kType: KType?): Boolean {
