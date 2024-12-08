@@ -150,7 +150,7 @@ open class StatesViewModel : ViewModel() {
         }
     }
 
-private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
+    private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
         call: suspend () -> State,
         kType: KType?,
         operationType: OperationType = OperationType.DefaultOperation,
@@ -162,8 +162,8 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
             throw NoOperationStateFoundException(kType)
         }
 
-        val isSingle = isSealedInterfaceSingle(kType)
         _lastOperationState.value = OperationState.Loading(operationType)
+        val isSingle = isSealedInterfaceSingle(kType)
         if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
@@ -171,10 +171,12 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
         val request = viewModelScope.async {
             // Call launching
             requestResult = call()
-            _lastOperationState.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+            _lastOperationState.value =
+                buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
             requestResult?.let {
                 if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
-                    _events.value = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+                    _events.value =
+                        buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
                 }
             }
             requestResult
@@ -185,7 +187,7 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
     private suspend fun <State, T : Any> buildOperationState(
         requestResult: State, onEmpty204: () -> Unit = {},
         onSuccess: (T) -> Unit = {},
-    ) : OperationState<T> {
+    ): OperationState<T> {
         val operationState = ToOperationStateMapper<State, T>().map(requestResult)
         if (operationState is OperationState.Success<T>) onSuccess.invoke(operationState.data)
         if (operationState is OperationState.Empty204) onEmpty204.invoke()
@@ -207,6 +209,7 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
             throw NoFlowOfOperationStateFoundException(kType)
         }
         _lastOperationState.value = OperationState.Loading(operationType)
+        val isSingle = isSealedInterfaceSingle(kType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -223,6 +226,9 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
                 if (operationState is OperationState.Success) onSuccess.invoke(operationState.data as T)
                 if (operationState is OperationState.Empty204) onEmpty204.invoke()
                 _lastOperationState.value = operationState
+                if (operationState::class.hasAnnotation<SingleEvent>() == true || isSingle) {
+                    _events.value = operationState
+                }
                 pollFromQueueForFlow(requestResult)
                 showLoadingForFlowIfNeed()
             }
@@ -384,25 +390,27 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
             throw NoOperationStateFoundException(kType)
         }
 
+        _lastOperationState.value = OperationState.Loading(operationType)
         val isSingle = isSealedInterfaceSingle(kType)
-            _lastOperationState.value = OperationState.Loading(operationType)
-            if (_lastOperationState.value is OperationState.Loading) {
-                requestsQueue.offer(kType.toString())
-            }
-            var requestResult: State
-            val request = viewModelScope.async {
+        if (_lastOperationState.value is OperationState.Loading) {
+            requestsQueue.offer(kType.toString())
+        }
+        var requestResult: State
+        val request = viewModelScope.async {
             // Call launching
             requestResult = call()
             // Working with OperationState
-            _lastOperationState.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
+            _lastOperationState.value =
+                buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
             requestResult?.let {
                 if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
-                    _events.value = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
+                    _events.value =
+                        buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
                 }
             }
             requestResult
-            }
-            return getAwaitedResult(request)
+        }
+        return getAwaitedResult(request)
     }
 
     private fun isSealedInterfaceSingle(kType: KType?): Boolean {
@@ -416,7 +424,7 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
     private suspend fun <State> buildOperationStateNoData(
         requestResult: State, onEmpty204: () -> Unit = {},
         onSuccess: () -> Unit = {},
-    ) : OperationState<Any> {
+    ): OperationState<Any> {
         val operationState = ToOperationStateMapper<State, Any>().map(requestResult)
         if (operationState is OperationState.Success) onSuccess.invoke()
         if (operationState is OperationState.Empty204) onEmpty204.invoke()
@@ -442,6 +450,7 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
             throw NoFlowOfOperationStateFoundException(kType)
         }
         _lastOperationState.value = OperationState.Loading(operationType)
+        val isSingle = isSealedInterfaceSingle(kType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -458,6 +467,9 @@ private suspend fun <@FunctionalityState State, T : Any> stateExecuteOperation(
                 if (operationState is OperationState.Success) onSuccess.invoke()
                 if (operationState is OperationState.Empty204) onEmpty204.invoke()
                 _lastOperationState.value = operationState
+                if (operationState::class.hasAnnotation<SingleEvent>() == true || isSingle) {
+                    _events.value = operationState
+                }
                 pollFromQueueForFlow(requestResult)
                 showLoadingForFlowIfNeed()
             }
