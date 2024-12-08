@@ -163,7 +163,7 @@ open class StatesViewModel : ViewModel() {
         }
 
         val isSingle = isSealedInterfaceSingle(kType)
-        return if (kType?.hasAnnotation<SingleEvent>() == false && isSingle) {
+        return if (kType?.hasAnnotation<SingleEvent>() == false && !isSingle) {
             _lastOperationState.value = OperationState.Loading(operationType)
             if (_lastOperationState.value is OperationState.Loading) {
                 requestsQueue.offer(kType.toString())
@@ -397,7 +397,7 @@ open class StatesViewModel : ViewModel() {
         }
 
         val isSingle = isSealedInterfaceSingle(kType)
-        return if (kType?.hasAnnotation<SingleEvent>() == false && isSingle) {
+        return if (kType?.hasAnnotation<SingleEvent>() == false && !isSingle) {
             _lastOperationState.value = OperationState.Loading(operationType)
             if (_lastOperationState.value is OperationState.Loading) {
                 requestsQueue.offer(kType.toString())
