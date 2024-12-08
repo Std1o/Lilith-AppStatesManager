@@ -52,8 +52,8 @@ internal class BaseRemoteDataSourceKClassVisitor(
     |     */
     |    protected suspend fun <T> executeOperation(
     |        operationType: OperationType = OperationType.DefaultOperation,
-    |        call: suspend () -> Response<T>,
-    |        isSingleError: Boolean = true
+    |        isSingleError: Boolean = true,
+    |        call: suspend () -> Response<T>
     |    ): OperationState<T> {
     |        try {
     |            val response = withContext(Dispatchers.IO) { call() }
