@@ -234,8 +234,8 @@ val screenEvents = _screenEvents.asSharedFlow()
 
 Usage example №2
 ```Kotlin
-private val _screenEvents = SingleEventFlow<MainScreenEventsChild<String>>()
-val screenEvents = _screenEvents.asSharedFlow()
+private val _resultReviewEvent = SingleEventFlow<TestResult>()
+val resultReviewFlow = _resultReviewEvent.asSharedFlow()
 ```
 
 ### Activate code generation
