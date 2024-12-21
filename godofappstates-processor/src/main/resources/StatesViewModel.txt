@@ -454,7 +454,7 @@ open class StatesViewModel : ViewModel() {
             throw NoFlowOfOperationStateFoundException(kType)
         }
         _lastOperationState.value = OperationState.Loading(operationType)
-        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType) && !isNotSingleClassInSingleInterface(kType)
+        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
