@@ -9,7 +9,8 @@
     1. [OperationState generation](#operationstate-generation)
     2. [LoadableData generation](#loadabledata-generation)
     3. [Making single events](#making-single-events)
-        1. [SingleEventFlow](#singleeventflow)
+        1. Events markers(events-markers)
+        2. [SingleEventFlow](#singleeventflow)
     4. [Activate code generation](#activate-code-generation)
     5. [Adding new states](#adding-new-states)
     6. [BaseRemoteDataSource](#baseremotedatasource)
@@ -194,10 +195,35 @@ data class SomeContentState(
 ```
 
 ### Making single events
+#### Events markers
+```Kotlin
+@SingleEvents
+sealed interface MainScreenEventsChild<out R> {
+    data class ShowSuccessToast(val text: String) : MainScreenEventsChild<String>
+}
+```
 #### SingleEventFlow
 Class for single events flow.
 In other words, the action is performed only once.
 And it will not be executed even if the device configuration was changed in.
+
+You can use this at the sealed class level, and then all childs will be single.
+```Kotlin
+@SingleEvents
+sealed interface MainScreenEventsChild<out R> {
+    data class ShowSuccessToast(val text: String) : MainScreenEventsChild<String>
+}
+```
+
+Also you can use this in child of parent sealed class
+```Kotlin
+@SingleEvent
+    data class ErrorSingle(
+        val exception: String,
+        val code: Int = -1,
+        val operationType: OperationType = OperationType.DefaultOperation
+    ) : OperationState<Nothing>
+```
 
 Usage example №1
 ```Kotlin
