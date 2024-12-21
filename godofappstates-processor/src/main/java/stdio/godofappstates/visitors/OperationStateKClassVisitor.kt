@@ -41,6 +41,7 @@ internal class OperationStateKClassVisitor(
     |import stdio.godofappstates.annotations.FunctionalityState
     |import stdio.godofappstates.core.domain.OperationType
     |import stdio.godofappstates.annotations.SingleEvent
+    |import stdio.godofappstates.annotations.NoSingleEvent
     |
     |/**
     | * OperationState contains the result of operation and is not intended for long-term storage of the screen state.
@@ -80,6 +81,7 @@ internal class OperationStateKClassVisitor(
              val operationType: OperationType = OperationType.DefaultOperation
          ) : OperationState<Nothing>
     |
+    |    @NoSingleEvent
     |    data class Loading(val operationType: OperationType = OperationType.DefaultOperation) :
     |        OperationState<Nothing>
     |}
