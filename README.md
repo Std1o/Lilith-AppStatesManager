@@ -204,7 +204,7 @@ sealed interface MainScreenEventsChild<out R> {
 }
 ```
 
-Also you can use this in child of parent sealed class
+Also you can use this in child of parent sinfgle sealed class
 ```Kotlin
 @SingleEvent
     data class ErrorSingle(
