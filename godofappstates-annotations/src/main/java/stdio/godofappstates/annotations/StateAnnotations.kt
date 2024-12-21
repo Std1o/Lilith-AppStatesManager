@@ -45,4 +45,7 @@ annotation class AllStatesReadyToUse
 annotation class SingleEvent
 
 @Target(AnnotationTarget.CLASS)
+annotation class NoSingleEvent
+
+@Target(AnnotationTarget.CLASS)
 annotation class SingleEvents

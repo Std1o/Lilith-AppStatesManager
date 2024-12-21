@@ -28,6 +28,7 @@ import godofappstates.domain.EventFlow
 import godofappstates.data.mapper.ToOperationStateMapper
 import kotlinx.coroutines.flow.asStateFlow
 import stdio.godofappstates.annotations.SingleEvents
+import stdio.godofappstates.annotations.NoSingleEvent
 import stdio.godofappstates.core.util.StateResetIsForbiddenException
 import java.util.LinkedList
 import kotlin.reflect.KClass
@@ -163,7 +164,7 @@ open class StatesViewModel : ViewModel() {
         }
 
         _lastOperationState.value = OperationState.Loading(operationType)
-        val isSingle = isSealedInterfaceSingle(kType)
+        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType)
         if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
@@ -209,7 +210,7 @@ open class StatesViewModel : ViewModel() {
             throw NoFlowOfOperationStateFoundException(kType)
         }
         _lastOperationState.value = OperationState.Loading(operationType)
-        val isSingle = isSealedInterfaceSingle(kType)
+        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
@@ -391,7 +392,7 @@ open class StatesViewModel : ViewModel() {
         }
 
         _lastOperationState.value = OperationState.Loading(operationType)
-        val isSingle = isSealedInterfaceSingle(kType)
+        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType)
         if (_lastOperationState.value is OperationState.Loading) {
             requestsQueue.offer(kType.toString())
         }
@@ -420,6 +421,9 @@ open class StatesViewModel : ViewModel() {
         }
         return firstParent?.isNotEmpty() ?: false
     }
+
+    private fun isNotSingleClassInSingleInterface(kType: KType?) =
+            kType?.jvmErasure?.hasAnnotation<NoSingleEvent>() == true
 
     private suspend fun <State> buildOperationStateNoData(
         requestResult: State, onEmpty204: () -> Unit = {},
@@ -450,7 +454,7 @@ open class StatesViewModel : ViewModel() {
             throw NoFlowOfOperationStateFoundException(kType)
         }
         _lastOperationState.value = OperationState.Loading(operationType)
-        val isSingle = isSealedInterfaceSingle(kType)
+        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType) && !isNotSingleClassInSingleInterface(kType)
         val mutableStateFlow = call().stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
