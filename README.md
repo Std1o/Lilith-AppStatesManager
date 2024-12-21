@@ -9,6 +9,7 @@
     1. [OperationState generation](#operationstate-generation)
     2. [LoadableData generation](#loadabledata-generation)
     3. [Making single Events](#making-single-events)
+        1. [EventFlow](#eventflow)
     4. [Activate code generation](#activate-code-generation)
     5. [Adding new states](#adding-new-states)
     6. [BaseRemoteDataSource](#baseremotedatasource)
@@ -193,10 +194,10 @@ data class SomeContentState(
 ```
 
 ### Making single Events
-> [!IMPORTANT]  
-> If methods with executeOperation of any kind follow each other, make sure that the method using EventFlow is called earlier.
-> 
-> Otherwise you will get uncorrected behavior!
+#### EventFlow
+Class for single events flow.
+In other words, the action is performed only once.
+And it will not be executed even if the device configuration is changed in.
 
 ### Activate code generation
 When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
