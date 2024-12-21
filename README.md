@@ -8,8 +8,8 @@
 7. [Usage](#usage)
     1. [OperationState generation](#operationstate-generation)
     2. [LoadableData generation](#loadabledata-generation)
-    3. [Making single Events](#making-single-events)
-        1. [EventFlow](#eventflow)
+    3. [Making single events](#making-single-events)
+        1. [SingleEventFlow](#singleeventflow)
     4. [Activate code generation](#activate-code-generation)
     5. [Adding new states](#adding-new-states)
     6. [BaseRemoteDataSource](#baseremotedatasource)
@@ -193,18 +193,23 @@ data class SomeContentState(
 )
 ```
 
-### Making single Events
-<<<<<<< Updated upstream
-#### EventFlow
+### Making single events
+#### SingleEventFlow
 Class for single events flow.
 In other words, the action is performed only once.
-And it will not be executed even if the device configuration is changed in.
-=======
-> [!IMPORTANT]  
-> If methods with executeOperation of any kind follow each other, make sure that the method using SingleEventFlow is called earlier.
-> 
-> Otherwise you will get uncorrected behavior!
->>>>>>> Stashed changes
+And it will not be executed even if the device configuration was changed in.
+
+Usage example №1
+```Kotlin
+private val _screenEvents = SingleEventFlow<MainScreenEventsChild<String>>()
+val screenEvents = _screenEvents.asSharedFlow()
+```
+
+Usage example №2
+```Kotlin
+private val _screenEvents = SingleEventFlow<MainScreenEventsChild<String>>()
+val screenEvents = _screenEvents.asSharedFlow()
+```
 
 ### Activate code generation
 When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
