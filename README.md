@@ -196,17 +196,6 @@ data class SomeContentState(
 
 ### Making single events
 #### Events markers
-```Kotlin
-@SingleEvents
-sealed interface MainScreenEventsChild<out R> {
-    data class ShowSuccessToast(val text: String) : MainScreenEventsChild<String>
-}
-```
-#### SingleEventFlow
-Class for single events flow.
-In other words, the action is performed only once.
-And it will not be executed even if the device configuration was changed in.
-
 You can use this at the sealed class level, and then all childs will be single.
 ```Kotlin
 @SingleEvents
@@ -224,6 +213,11 @@ Also you can use this in child of parent sealed class
         val operationType: OperationType = OperationType.DefaultOperation
     ) : OperationState<Nothing>
 ```
+
+#### SingleEventFlow
+Class for single events flow.
+In other words, the action is performed only once.
+And it will not be executed even if the device configuration was changed in.
 
 Usage example №1
 ```Kotlin
