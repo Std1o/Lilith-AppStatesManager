@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import stdio.godofappstates.annotations.FunctionalityState
 import stdio.godofappstates.annotations.SingleEvent
 import stdio.godofappstates.annotations.StillLoading
-import godofappstates.domain.EventFlow
+import godofappstates.domain.SingleEventFlow
 import godofappstates.data.mapper.ToOperationStateMapper
 import kotlinx.coroutines.flow.asStateFlow
 import stdio.godofappstates.annotations.SingleEvents
@@ -52,7 +52,7 @@ open class StatesViewModel : ViewModel() {
     private val _lastOperationState = MutableStateFlow<OperationState<Any>>(OperationState.NoState)
     val lastOperationState = _lastOperationState.asStateFlow()
 
-    private val _events = EventFlow<OperationState<Any>>()
+    private val _events = SingleEventFlow<OperationState<Any>>()
     val events = _events.asSharedFlow()
 
     private val requestsQueue = LinkedList<String>()

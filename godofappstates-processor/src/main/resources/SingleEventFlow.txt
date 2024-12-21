@@ -4,9 +4,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * В классе используется метод из ExperimentalCoroutinesApi resetReplayCache()
+ * Class for single events flow.
+ *
+ * In other words, the action is performed only once.
+ *
+ * And it will not be executed even if the device configuration is changed in
  */
-class EventFlow<T> : MutableSharedFlow<T> {
+class SingleEventFlow<T> : MutableSharedFlow<T> {
 
     private val mutableSharedFlow = MutableSharedFlow<T>(replay = 1)
 

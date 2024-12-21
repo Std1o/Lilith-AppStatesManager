@@ -194,10 +194,17 @@ data class SomeContentState(
 ```
 
 ### Making single Events
+<<<<<<< Updated upstream
 #### EventFlow
 Class for single events flow.
 In other words, the action is performed only once.
 And it will not be executed even if the device configuration is changed in.
+=======
+> [!IMPORTANT]  
+> If methods with executeOperation of any kind follow each other, make sure that the method using SingleEventFlow is called earlier.
+> 
+> Otherwise you will get uncorrected behavior!
+>>>>>>> Stashed changes
 
 ### Activate code generation
 When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.

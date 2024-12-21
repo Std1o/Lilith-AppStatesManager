@@ -1,12 +1,11 @@
 package com.stdio.godofappstates.presentation.viewmodel;
 
 import androidx.lifecycle.viewModelScope
-import com.stdio.godofappstates.domain.operationState.MainScreenEvents
 import com.stdio.godofappstates.domain.operationState.MainScreenEventsChild
 import com.stdio.godofappstates.domain.operationState.OperationState
 import com.stdio.godofappstates.domain.operationState.protect
 import dagger.hilt.android.lifecycle.HiltViewModel
-import godofappstates.domain.EventFlow
+import godofappstates.domain.SingleEventFlow
 import godofappstates.presentation.viewmodel.StatesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor() : StatesViewModel() {
 
-    private val _screenEvents = EventFlow<MainScreenEventsChild<String>>()
+    private val _screenEvents = SingleEventFlow<MainScreenEventsChild<String>>()
     val screenEvents = _screenEvents.asSharedFlow()
 
     init {

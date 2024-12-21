@@ -18,10 +18,10 @@ internal class EventKClassVisitor(
         val outputStream: OutputStream = codeGenerator.createNewFile(
             dependencies = dependencies,
             packageName,
-            fileName = "EventFlow"
+            fileName = "SingleEventFlow"
         )
 
-        val content = this.javaClass.classLoader.getResource("EventFlow.txt")?.readText()
+        val content = this.javaClass.classLoader.getResource("SingleEventFlow.txt")?.readText()
 
         outputStream.write(
             ("""
