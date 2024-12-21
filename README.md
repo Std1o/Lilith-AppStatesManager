@@ -9,7 +9,7 @@
     1. [OperationState generation](#operationstate-generation)
     2. [LoadableData generation](#loadabledata-generation)
     3. [Making single events](#making-single-events)
-        1. Events markers(#events-markers)
+        1. [Events markers](#events-markers)
         2. [SingleEventFlow](#singleeventflow)
     4. [Activate code generation](#activate-code-generation)
     5. [Adding new states](#adding-new-states)
