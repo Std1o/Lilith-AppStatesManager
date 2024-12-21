@@ -204,7 +204,7 @@ sealed interface MainScreenEventsChild<out R> {
 }
 ```
 
-Also you can use this in child of parent sinfgle sealed class
+Also you can use this in child of parent NOsinfgle sealed class
 ```Kotlin
 @SingleEvent
     data class ErrorSingle(
@@ -212,6 +212,13 @@ Also you can use this in child of parent sinfgle sealed class
         val code: Int = -1,
         val operationType: OperationType = OperationType.DefaultOperation
     ) : OperationState<Nothing>
+```
+
+If sealed class is single but you need one non single state you can use @NoSingleEvent
+```Kotlin
+@NoSingleEvent
+    data class Loading(val operationType: OperationType = OperationType.DefaultOperation) :
+        OperationState<Nothing>
 ```
 
 #### SingleEventFlow
