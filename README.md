@@ -224,7 +224,7 @@ If sealed class is single but you need one non single state you can use @NoSingl
 #### SingleEventFlow
 Class for single events flow.
 In other words, the action is performed only once.
-And it will not be executed even if the device configuration was changed in.
+And it will not be executed again even if the device configuration was changed in.
 
 Usage example №1
 ```Kotlin
