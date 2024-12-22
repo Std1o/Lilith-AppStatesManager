@@ -1,4 +1,4 @@
-# God Of App States
+# Lilith – App States Manager
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/GodOfAppStates)
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/GodOfAppStates/blob/main/README-RU.md)
 
