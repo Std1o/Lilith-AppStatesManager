@@ -13,8 +13,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GodOfAppStates"
+rootProject.name = "Lilith – app states manager"
 include ':app'
-include ':godofappstates-core'
-include ':godofappstates-processor'
-include ':godofappstates-annotations'
+include ':lilith-core'
+include ':lilith-processor'
+include ':lilith-annotations'

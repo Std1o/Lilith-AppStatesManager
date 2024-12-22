@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.stdio.godofappstates'
+    namespace 'com.stdio.lilith'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.stdio.godofappstates"
+        applicationId "com.stdio.lilith"
         minSdk 21
         targetSdk 34
         versionCode 1
@@ -43,9 +43,9 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation(project(':godofappstates-core'))
-    implementation(project(':godofappstates-annotations'))
-    ksp(project(":godofappstates-processor"))
+    implementation implementation(project(':lilith-core',))
+    implementation implementation(project(':lilith-annotations',))
+    ksp ksp(project(':lilith-processor',))
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.22"
 
     // Hilt

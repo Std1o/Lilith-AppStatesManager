@@ -1,0 +1,6 @@
+stdio.lilith.processors.operationState.OperationStateProcessorProvider
+stdio.lilith.processors.loadableData.LoadableDataProcessorProvider
+stdio.lilith.processors.baseRemoteDataSource.BaseRemoteDataSourceProcessorProvider
+stdio.lilith.processors.toOperationStateMapper.ToOperationStateMapperProcessorProvider
+stdio.lilith.processors.statesViewModel.StatesViewModelProcessorProvider
+stdio.lilith.processors.events.EventProcessorProvider
