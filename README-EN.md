@@ -1,6 +1,6 @@
 # Lilith – app states manager
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/Lilith-App.States.Manager)
-[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/Lilith-App.States.Manager/blob/main/README-RU.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/Lilith-App.States.Manager/blob/main/README-RU.md)
+[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/Lilith-App.States.Manager)
 
 1. [About library](#about-library)
 2. [Requirements](#requirements)
