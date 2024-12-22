@@ -1,6 +1,6 @@
 # Лилит – менеджер состояний приложения
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/GodOfAppStates)
-[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/GodOfAppStates/blob/main/README-RU.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/Lilith-App.States.Manager/blob/main/README-RU.md)
+[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/Lilith-App.States.Manager)
 
 1. [О библиотеке](#о-библиотеке)
 2. [Требования](#требования)
