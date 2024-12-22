@@ -1,7 +1,4 @@
 # God Of App States
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/GodOfAppStates)
-[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/GodOfAppStates/blob/main/README-RU.md)
-
 1. [About library](#about-library)
 2. [Requirements](#requirements)
 3. [Compatibility with DI](#compatibility-with-di)
@@ -27,7 +24,7 @@
     8. [UI reaction to state](#ui-reaction-to-state)
     9. [StillLoading annotation](#stillloading-annotation)
 
-## About library
+## О библиотеке
 What does this library do?
 1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
 2. Automatically forms base states.
