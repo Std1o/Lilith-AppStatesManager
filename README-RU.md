@@ -1,18 +1,21 @@
 # God Of App States
-1. [About library](#about-library)
-2. [Requirements](#requirements)
-3. [Compatibility with DI](#compatibility-with-di)
-4. [Architecture requirements](#architecture-requirements)
-5. [Architecture by using library](#architecture-by-using-library)
-6. [Setup](#setup)
-7. [Usage](#usage)
-    1. [OperationState generation](#operationstate-generation)
-    2. [LoadableData generation](#loadabledata-generation)
-    3. [Making single events](#making-single-events)
-        1. [Events markers](#events-markers)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/GodOfAppStates)
+[![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/GodOfAppStates/blob/main/README-RU.md)
+
+1. [О библиотеке](#о-библиотеке)
+2. [Требования](#требования)
+3. [Совместимость с DI](#совместимость-с-di)
+4. [Требования к архитектуре](#требования-к-архитектуре)
+5. [Архитектура при использовании библиотеки](#архитектура-при-использовании-библиотеки)
+6. [Установка](#установка)
+7. [Использование](#использование)
+    1. [Генерация OperationState](#генерация-operationstate)
+    2. [Генерация LoadableData](#генерация-loadabledata)
+    3. [Создание single ивентов](#создание-single-ивентов)
+        1. [Event markers](#event-markers)
         2. [SingleEventFlow](#singleeventflow)
-    4. [Activate code generation](#activate-code-generation)
-    5. [Adding new states](#adding-new-states)
+    4. [Включение кодогенерации](#включение-кодогенерации)
+    5. [Добавление новых состояний](#добавление-новых-состояний)
     6. [BaseRemoteDataSource](#baseremotedatasource)
     7. [StatesViewModel](#statesviewmodel)
         1. [loadData](#loaddata)
@@ -21,8 +24,8 @@
         4. [executeEmptyOperation](#executeemptyoperation)
         5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
         6. [Important information](#important-information)
-    8. [UI reaction to state](#ui-reaction-to-state)
-    9. [StillLoading annotation](#stillloading-annotation)
+    8. [Реакция UI на состояние](#реакция-UI-на-состояние)
+    9. [StillLoading аннотация](#stillloading-аннотация)
 
 ## О библиотеке
 What does this library do?
@@ -40,14 +43,14 @@ It is successfully being used for one [medium pet project](https://github.com/St
 
 Also you can se [wiki Simple OperationState explanation](https://github.com/Std1o/GodOfAppStates/wiki/Simple-OperationState-explanation)
 
-## Requirements
+## Требования
 1. Kotlin
 2. compileSdk 34+ and targetSdk 34+
 3. Retrofit usage
 4. Android Gradle plugin version 8+
 5. 'org.jetbrains.kotlin.android' version '1.9.0'+
 
-## Compatibility with DI
+## Совместимость с DI
 For DI you must use ksp intead of kapt.
 
 Just replace "kapt" with "ksp" in build.gradle of your module. Also you can see https://dagger.dev/dev-guide/ksp.html
@@ -57,15 +60,15 @@ Just replace "kapt" with "ksp" in build.gradle of your module. Also you can see 
 3. Dagger 2 - not tested
 4. Other DIs - there are no plans to check in the near future
 
-## Architecture requirements
+## Требования к архитектуре
 Simplifying, your architecture should be something like this.
 
 ![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/94055f61-6e88-495e-be03-00dfa223df7a)
 
 If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repository Pattern
 
-## Architecture by using library
-Recommendation:
+## Архитектура при использовании библиотеки
+Рекомендация:
 1. Take a quick look at what the architecture will turn out to be in the end.
 2. See what you need to do for this.
 3. Go back to the diagram and take a closer look at what will be happened as a result.
@@ -76,7 +79,7 @@ Don't delve into it yet. Read the usage item, then return to the diagram. After 
 
 ![god_of_app_states](https://github.com/Std1o/GodOfAppStates/assets/37378410/56143f47-1710-43de-8325-7525e7471d28)
 
-## Setup
+## Установка
 
 In your settings.gradle
 ```Gradle
@@ -120,8 +123,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
 }
 ```
-## Usage
-### OperationState generation
+## Использование
+### Генерация OperationState
 > [!NOTE]  
 > To generate the OperationState, you need to create at least one functionality state marked with an annotation.
 >
@@ -161,7 +164,7 @@ You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/t
 >
 > For long-term states, create your own functionality states marked with an annotation.
 
-### LoadableData generation
+### Генерация LoadableData
 LoadableData is state of some view or composable fun. Thanks to it, the state of the component is isolated from the rest of the screen, which allows you to increase UX and contributes to the absence of collisions.
 
 To create a custom LoadableData, just mark your sealed interface with @LoadableData annotation:
@@ -194,8 +197,8 @@ data class SomeContentState(
 )
 ```
 
-### Making single events
-#### Events markers
+### Создание single ивентов
+#### Event markers
 You can use this at the sealed class level, and then all childs will be single.
 ```Kotlin
 @SingleEvents
@@ -238,7 +241,7 @@ private val _resultReviewEvent = SingleEventFlow<TestResult>()
 val resultReviewFlow = _resultReviewEvent.asSharedFlow()
 ```
 
-### Activate code generation
+### Включение кодогенерации
 When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
 
 To do this, mark your Application class with @AllStatesReadyToUse annotation.
@@ -253,7 +256,7 @@ If you have created an Application class just now, don't forget to specify it in
 
 After that, rebuild your project. How to do this is written in the next section.
 
-### Adding new states
+### Добавление новых состояний
 During app development most likely you will need to create your own functionality states or custom LoadableData.
 
 To make basic states available for recently added annotated states, you need to "make module".
@@ -442,7 +445,7 @@ executeOperation({ createTestUseCase(testCreationReq) }, Test::class).protect()
 ```
 This is necessary because otherwise kotlin compiler generates incorrect lambda return type in the invokeSuspend() method.
 
-### UI reaction to state
+### Реакция UI на состояние
 Collecting of your states will look something like this:
 ```Kotlin
 val contentState by viewModel.contentState.collectAsState() // Then you can use contentState.someLoadableData
@@ -502,7 +505,7 @@ UIReactionOnLastOperationState(
 
 This part of the code is not included in the library, so not to make a dependency on Jetpack Compose.
 
-### StillLoading annotation
+### StillLoading аннотация
 For states from UseCase. Mark with it if loader should be still shown. Note that in this case, UseCase must return flow.
 
 Example:
@@ -516,5 +519,5 @@ sealed interface ValidatableOperationState<out R> {
         ValidatableOperationState<Nothing>
 }
 ```
-## License
+## Лицензия
 This project is licensed under the [Apache License, Version 2.0](https://github.com/Std1o/GodOfAppStates/blob/main/LICENSE)
