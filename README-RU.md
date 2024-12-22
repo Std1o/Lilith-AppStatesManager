@@ -1,4 +1,4 @@
-# God Of App States
+# Лилит – менеджер состояний приложения
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/GodOfAppStates)
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/GodOfAppStates/blob/main/README-RU.md)
 
