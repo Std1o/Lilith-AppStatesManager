@@ -2,6 +2,8 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/Std1o/Lilith-App.States.Manager/blob/main/README-EN.md)
 [![ru](https://img.shields.io/badge/lang-ru-blue.svg)](https://github.com/Std1o/Lilith-App.States.Manager)
 
+Перед ознакомлением с документацией рекомендуется посмотреть [презентацию](https://github.com/user-attachments/files/18225885/lilith.pptx)
+
 1. [О библиотеке](#о-библиотеке)
 2. [Требования](#требования)
 3. [Совместимость с DI](#совместимость-с-di)
