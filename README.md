@@ -30,20 +30,14 @@
     9. [StillLoading аннотация](#stillloading-аннотация)
 
 ## О библиотеке
-What does this library do?
-1. It helps to create your own states without losing or duplicating the basic ones (Loading, Error, Success, Empty204).
-2. Automatically forms base states.
-3. Removes boilerplate code from ViewModel. You will not have to worry about delivery of Loading and Error states. For your functionality states you can define a general reaction to these states and, if necessary, assign a specific reaction for screen, or different reactions by OperationType.
-4. Automatically solves problem with Loading state collisions. In addition, there is the mechanism that allows you to handle same state on the screen in different ways, depending on the request.
-5. Ideologically, it helps to create independent states for the components of the screen. For example, it is very easy to make skeletons with this approach.
-
-The library is flexibly combined with existing code. You can just not use library in some places.
-
-When using the library, it is important to adhere to the concept. The library helps to adhere it as much as possible with minimal effort.
-
-It is successfully being used for one [medium pet project](https://github.com/Std1o/StudentTestingSystem),  but for large projects it is not time-tested yet
-
-Also you can se [wiki Simple OperationState explanation](https://github.com/Std1o/GodOfAppStates/wiki/Simple-OperationState-explanation)
+Что делает библиотека:
+– Помогает создавать новые наборы состояний без потери или дублирования базовых. – Автоматически формирует базовые состояния.
+– Убирает boilerplate code из ViewModel. Во View можно назначить как общие, так и уникальные реакции на Error и Loading.
+– Убирает коллизии лоадера незавсимо от причины возникновения.
+– Помогает создавать независимые состояния компонентов экрана (сама сформирует состояния, сама разберётся с лоадингом). Пример такого подхода: скелетоны, показ ошибки на конкретном компоненте экрана, а не на всём экране и т.д.
+– Библиотека не будет конфликтовать с вашей архитектурой, если она +- сделана по clean. Можно написать новый экран с библиотекой, а старые не трогать.
+- Поддерживает single ивенты из коробки
+Библиотека успешно используется на одно из [средних pet проектах](https://github.com/Std1o/StudentTestingSystem)
 
 ## Требования
 1. Kotlin
