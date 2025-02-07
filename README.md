@@ -52,14 +52,14 @@
 5. 'org.jetbrains.kotlin.android' version '1.9.0'+
 
 ## Совместимость с DI
-For DI you must use ksp intead of kapt.
+Для DI необходимо использовать ksp вместо kapt.
 
-Just replace "kapt" with "ksp" in build.gradle of your module. Also you can see https://dagger.dev/dev-guide/ksp.html
+Просто замените "kapt" на "ksp" в build.gradle вашего модуля. Также можете посмотреть https://dagger.dev/dev-guide/ksp.html
 
 1. Koin - 100%
-2. Hilt - Compatible when using a small workaround
-3. Dagger 2 - not tested
-4. Other DIs - there are no plans to check in the near future
+2. Hilt - Совместимо с небольшим костылём
+3. Dagger 2 - Не проверено
+4. Other DIs - Проверка не планируется в ближайшем будущем
 
 ## Требования к архитектуре
 Simplifying, your architecture should be something like this.
