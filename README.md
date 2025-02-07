@@ -70,9 +70,9 @@
 
 ## Архитектура при использовании библиотеки
 Рекомендация:
-1. Take a quick look at what the architecture will turn out to be in the end.
-2. See what you need to do for this.
-3. Go back to the diagram and take a closer look at what will be happened as a result.
+1. Взгляните на то, какой в итоге получится архитектура.
+2. Посмотрите, что нужно для этого сделать.
+3. Вернитесь к диаграмме и посмотрите внимательнее, что должно получится в итоге.
 
 As a result of using the library, you will get something like this architecture. It may be hard to understand, but it's simple to use. You practically don't have to do anything to get such an architecture.
 
