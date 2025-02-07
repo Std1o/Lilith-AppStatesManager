@@ -62,11 +62,11 @@
 4. Остальные DI - Проверка не планируется в ближайшем будущем
 
 ## Требования к архитектуре
-Simplifying, your architecture should be something like this.
+Упрощая, ваша архитектура должна выглядеть примерно так.
 
 ![simple_arch](https://github.com/Std1o/GodOfAppStates/assets/37378410/94055f61-6e88-495e-be03-00dfa223df7a)
 
-If this is unfamiliar to you, you can google MVVM, Clean Architecture, Repository Pattern
+Если это вам незнакомо, вы можете погуглить: MVVM, Clean Architecture, Repository Pattern
 
 ## Архитектура при использовании библиотеки
 Рекомендация:
