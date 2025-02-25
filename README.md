@@ -74,15 +74,15 @@
 2. Посмотрите, что нужно для этого сделать.
 3. Вернитесь к диаграмме и посмотрите внимательнее, что должно получится в итоге.
 
-As a result of using the library, you will get something like this architecture. It may be hard to understand, but it's simple to use. You practically don't have to do anything to get such an architecture.
+В результате использования библиотеки, мы получим примерно такую архитектуру. Она может быть сложна для понимания, но проста в использовании. Вам практически ничего не нужно делать, чтобы получить такую архитектуру.
 
-Don't delve into it yet. Read the usage item, then return to the diagram. After that, you can start reproduce [Usage](#usage)
+Пока не углубляйтесь в это. Прочтите пункт "Использование", затем вернитесь к диаграмме. После этого вы можете приступить к воспроизведению. [Usage](#usage)
 
 ![god_of_app_states](https://github.com/Std1o/GodOfAppStates/assets/37378410/56143f47-1710-43de-8325-7525e7471d28)
 
 ## Установка
 
-In your settings.gradle
+В вашем settings.gradle
 ```Gradle
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -93,7 +93,7 @@ dependencyResolutionManagement {
     }
 }
 ```
-In your project build.gradle
+В вашем build.gradle на уровне проекта
 ```Gradle
 buildscript {
     dependencies {
@@ -101,7 +101,7 @@ buildscript {
     }
 }
 ```
-In your app module build.gradle add ksp plugin
+В вашем build.gradle на уровне модуля app добавьте ksp plugin
 ```Gradle
 plugins {
     id 'com.android.application'
@@ -109,7 +109,7 @@ plugins {
     id 'com.google.devtools.ksp'
 }
 ```
-Then add the dependencies
+Затем добавьте зависимости
 ```Gradle
 dependencies {
 
