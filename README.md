@@ -138,7 +138,7 @@ dependencies {
 > sealed interface OperationStateTrigger<out R>
 > ```
 
-To create your own functionality state with access to the base operations states (Success, Error, Loading,  Empty204, NoState) just create something like this:
+Чтобы создать ваше собственное функциональное состояние с доступом к базовым состояниям операций (Success, Error, Loading,  Empty204, NoState) просто создайте что-то в роде этого:
 ```Kotlin
 @OperationState
 sealed interface YourFunctionalityState<out R> {
@@ -147,7 +147,7 @@ sealed interface YourFunctionalityState<out R> {
     data object State3 : YourFunctionalityState<Nothing>
 }
 ```
-All operation states must be in the same package.
+Все состояния операций должны находиться в одном пакете.
 
 > [!IMPORTANT]  
 > You can create a hierarchy of your states, but keep in mind that it should be reverse. [Why?](https://github.com/Std1o/GodOfAppStates/wiki/Reverse-hierarchy)
