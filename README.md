@@ -150,11 +150,11 @@ sealed interface YourFunctionalityState<out R> {
 Все состояния операций должны находиться в одном пакете.
 
 > [!IMPORTANT]  
-> You can create a hierarchy of your states, but keep in mind that it should be reverse. [Why?](https://github.com/Std1o/GodOfAppStates/wiki/Reverse-hierarchy)
+> Вы можете создать иерархию ваших состояний, но имейте в виду, что она должна быть обратной. [Почему?](https://github.com/Std1o/GodOfAppStates/wiki/Reverse-hierarchy)
 > 
-> You need to mark  with an annotation only semantically base class in your hierarchy.
+> Вам нужно пометить аннотацией только семантически базовый класс в вашей иерархии.
 > 
-> Example:
+> Пример:
 > 
 > <img width="542" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/e047952a-592c-47bb-91b8-f731ddb12f88">
 
