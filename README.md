@@ -131,7 +131,7 @@ dependencies {
 >
 > Функциональное состояние – это состояние, которое вы создаёте в вашем [Use Cases](https://developer.android.com/topic/architecture/domain-layer) если OperationState состояний недостаточно или требуется долгосрочное состояние.
 >
-> If you don't need your functionality state yet, you can write it and delete it as soon as a useful one appears.
+> Если вам пока что не нужно функциональное состояние, вы можете написать это. Как только появится полезное функциональное состояние, можете удалить это.
 >
 > ```Kotlin
 > @OperationState
