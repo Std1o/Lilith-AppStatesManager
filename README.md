@@ -158,7 +158,7 @@ sealed interface YourFunctionalityState<out R> {
 > 
 > <img width="542" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/e047952a-592c-47bb-91b8-f731ddb12f88">
 
-You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
+Вы можете посмотреть реальный пример использования [здесь](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
 
 > [!IMPORTANT]
 > OperationState contains the result of operation and is not intended for long-term storage state.
