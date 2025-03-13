@@ -161,14 +161,14 @@ sealed interface YourFunctionalityState<out R> {
 Вы можете посмотреть реальный пример использования [здесь](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
 
 > [!IMPORTANT]
-> OperationState contains the result of operation and is not intended for long-term storage state.
+> OperationState содержит результат операции и не предназначен для долгосрочных состояний.
 >
-> For long-term states, create your own functionality states marked with an annotation.
+> Для долгосрочных состоянй создайте собственные функциональные состояния, помеченные аннотацией.
 
 ### Генерация LoadableData
-LoadableData is state of some view or composable fun. Thanks to it, the state of the component is isolated from the rest of the screen, which allows you to increase UX and contributes to the absence of collisions.
+LoadableData – это состояние некоторого View или composable-функции. Благодаря ему, состояние компонента изолировано от остальной части экрана, что позволяет улучшить UX и способствует отсутствию коллизий.
 
-To create a custom LoadableData, just mark your sealed interface with @LoadableData annotation:
+Чтобы создать кастомную LoadableData, просто пометьте ваш sealed interface аннотацией @LoadableData:
 ```Kotlin
 @LoadableData
 sealed interface CustomLoadableData<out R> {
