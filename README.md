@@ -178,7 +178,7 @@ sealed interface CustomLoadableData<out R> {
 }
 ```
 
-If you don't need a custom LoadableData yet, you can write it and delete it as soon as a useful one appears.
+Если вам пока что не нужен кастомный LoadableData, вы можете написать это, и удалить, как только появится полезный LoadableData.
 
 ```Kotlin
 @LoadableData
