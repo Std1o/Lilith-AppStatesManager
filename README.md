@@ -437,23 +437,23 @@ viewModelScope.launch {
 ```
 
 #### Важная информация
-If you don't use either val/var or collect for the methods listed above, you need to call protect().
+Если вы не используете ни val/var, ни collect для перечисленных выше методов, вам необходимо вызвать protect().
 
-Example:
+Пример:
 ```Kotlin
 executeOperation({ createTestUseCase(testCreationReq) }, Test::class).protect()
 ```
-This is necessary because otherwise kotlin compiler generates incorrect lambda return type in the invokeSuspend() method.
+Это необходимо, поскольку в противном случае компилятор kotlin генерирует неверный возвращаемый тип лямбды в методе invokeSuspend().
 
 ### Реакция UI на состояние
-Collecting of your states will look something like this:
+Сбор ваших состояний будет выглядеть примерно так:
 ```Kotlin
 val contentState by viewModel.contentState.collectAsState() // Then you can use contentState.someLoadableData
 val lastOperationState by viewModel.lastOperationState.collectAsState() // This is in the StatesViewModel
 // Please don't check the states from OperationState by this val, there are lastOperationState for this
 val loginState by viewModel.loginState.collectAsState() // example of functionality state
 ```
-If you are using Jetpack Compose, just create UIReactionOnLastOperationState.kt and paste this code there:
+Если вы используете Jetpack Compose, просто создайте UIReactionOnLastOperationState.kt и вставьте туда следующий код:
 ```Kotlin
 /**
  * Used for temporary and short-lived states caused by the last operation
@@ -488,9 +488,9 @@ fun <T> UIReactionOnLastOperationState(
     }
 }
 ```
-You can modify this function as you want.
+Вы можете модифиуировать эту функцию как угодно.
 
-Then just add this to your screen:
+Затем просто добавьте функцию на экран:
 ```Kotlin
 UIReactionOnLastOperationState(
     lastOperationState,
