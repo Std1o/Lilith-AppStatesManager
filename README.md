@@ -257,9 +257,9 @@ class App : Application()
 После этого сделайте rebuild проекта. Как это сделать написано в следующей секции.
 
 ### Добавление новых состояний
-During app development most likely you will need to create your own functionality states or custom LoadableData.
+Во время разработки приложения, скорее всего, вам потребуется создать свои собственные функциональные состояния или кастомную LoadableData.
 
-To make basic states available for recently added annotated states, you need to "make module".
+Чтобы сделать базовые состояния доступными для недавно добавленных аннотированных состояний, вам нужно нажать "make module".
 
 <img width="554" alt="Снимок экрана 2023-10-27 в 20 44 41" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/36e4df4d-3cba-4115-9bed-f6ba7a7bf96c">
 
