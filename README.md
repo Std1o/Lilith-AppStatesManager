@@ -227,7 +227,7 @@ sealed interface MainScreenEventsChild<out R> {
 
 #### SingleEventFlow
 Класс для flow single ивентов. 
-Другими словами, действие выполнится только один раз, и не будет запущено снова, даже при смене конфигурации устройства.
+Другими словами, действие выполнится только один раз, и не будет запущено снова при смене конфигурации устройства.
 
 Пример использования №1
 ```Kotlin
@@ -242,19 +242,19 @@ val resultReviewFlow = _resultReviewEvent.asSharedFlow()
 ```
 
 ### Включение кодогенерации
-When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
+Если есть хотя бы одно состояние, помеченное аннотацией @OperationState, и хотя бы одно состояние, помеченное аннотацией @LoadableData, можно приступить к генерации классов библиотеки.
 
-To do this, mark your Application class with @AllStatesReadyToUse annotation.
+Чтобы сделать это, пометьте ваш Application класс аннотацией @AllStatesReadyToUse.
 ```Kotlin
 @AllStatesReadyToUse
 class App : Application()
 ```
 
-If you have created an Application class just now, don't forget to specify it in manifest.
+Если вы создали Application класс только что, не забудьте указать его в манифесте.
 
 <img width="265" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/6e3d9c3b-7f6f-4bcd-85e0-3dfacdcc6725">
 
-After that, rebuild your project. How to do this is written in the next section.
+После этого сделайте rebuild проекта. Как это сделать написано в следующей секции.
 
 ### Добавление новых состояний
 During app development most likely you will need to create your own functionality states or custom LoadableData.
