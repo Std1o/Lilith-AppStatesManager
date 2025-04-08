@@ -226,17 +226,16 @@ sealed interface MainScreenEventsChild<out R> {
 ```
 
 #### SingleEventFlow
-Class for single events flow.
-In other words, the action is performed only once.
-And it will not be executed again even if the device configuration was changed in.
+Класс для flow single ивентов. 
+Другими словами, действие выполнится только один раз, и не будет запущено снова, даже при смене конфигурации устройства.
 
-Usage example №1
+Пример использования №1
 ```Kotlin
 private val _screenEvents = SingleEventFlow<MainScreenEventsChild<String>>()
 val screenEvents = _screenEvents.asSharedFlow()
 ```
 
-Usage example №2
+Пример использования №2
 ```Kotlin
 private val _resultReviewEvent = SingleEventFlow<TestResult>()
 val resultReviewFlow = _resultReviewEvent.asSharedFlow()
