@@ -386,9 +386,9 @@ viewModelScope.launch {
     }
 }
 ```
-In the previous example, lambda returned functionality state. You can also call this method passing lambda that returns flow of functionality state or OperationState.
+В предыдущем примере лямбда-выражение возвращало функциональное состояние. Вы также можете вызвать этот метод, передавая лямбда-выражение, возвращающее flow функционального состояния или OperationState.
 
-Example:
+Пример:
 ```Kotlin
 viewModelScope.launch {
     executeOperation(
