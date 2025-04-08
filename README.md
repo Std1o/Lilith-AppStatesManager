@@ -364,9 +364,9 @@ viewModelScope.launch {
 
 <img width="585" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/a65f0800-3ffd-413a-aeca-966825e0e664">
 
-All "execute" methods can work with your functionality state. If current state is some state of OperationState it automatically send to lastOperationState which is contained in StatesViewModel. Then method returns current state.
+Все "execute" методы могут работать с вашим функциональным состоянием. Если текущее состояние является некоторым состоянием OperationState, оно автоматически отправляется в lastOperationState, которое содержится в StatesViewModel. Затем метод возвращает текущее состояние.
 
-Example:
+Пример:
 ```Kotlin
 // Some functionality state if you need it
 private val _testState = MutableStateFlow<TestCreationState<Test>>(OperationState.NoState)
