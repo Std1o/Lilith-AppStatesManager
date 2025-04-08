@@ -263,12 +263,12 @@ class App : Application()
 
 <img width="554" alt="Снимок экрана 2023-10-27 в 20 44 41" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/36e4df4d-3cba-4115-9bed-f6ba7a7bf96c">
 
-If it doesn't help, then rebuild project
+Если это не помогло, нажмите "rebuild project"
 
 <img width="498" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/85935610-54cf-477a-ba08-9bcfd168cb30">
 
 ### BaseRemoteDataSource
-This class has 2 methods. To use them, inherit your RemoteDataSource from BaseRemoteDataSource.
+Этот класс имеет 2 метода. Чтобы использовать их, наследуйте свой RemoteDataSource от BaseRemoteDataSource.
 
 ```Kotlin
 class RemoteDataSource(private val someRetrofitService: SomeRetrofitService) : BaseRemoteDataSource() {
