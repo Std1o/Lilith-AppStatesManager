@@ -288,25 +288,21 @@ override suspend fun signUp(request: SignUpReq) = executeOperation { mainService
 
 Пример использования:
 ```Kotlin
-enum class CourseAddingOperations : OperationType {
-    CREATE_COURSE, JOIN_COURSE
-}
-
 override suspend fun createCourse(request: CourseCreationReq) =
     executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
 ```
-Then you can get OperationType in UI if state is Success, Error or Empty204.
+Затем вы можете получить OperationType в UI если состояние Success, Error или Empty204.
 
-There is example of your OperationType:
+Пример вашего OperationType:
 ```Kotlin
 enum class CourseAddingOperations : OperationType {
     CREATE_COURSE, JOIN_COURSE
 }
 ```
 
-Method loadData() generates LoadableData that contains a limited set of loading data states.
+Метод loadData() генерирует LoadableData, который содержит ограниченный набор состояний загружаемых данных.
 
-Usage example:
+Пример использования:
 ```Kotlin
 override suspend fun getCourses() = loadData { mainService.getCourses() }
 ```
