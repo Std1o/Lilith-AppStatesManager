@@ -309,7 +309,6 @@ override suspend fun getCourses() = loadData { mainService.getCourses() }
 
 ### StatesViewModel
 StatesViewModel содержит StateFlow для транслирования последнего состояния операции и методы для выполнения операций с автоматическим обновлением состояний.
-StatesViewModel contains a StateFlow that broadcasts last operation state, and a method that launching operations and updating last operation state based on the response.
 
 Также StatesViewModel имеет методы для вызова LoadableData запросов с автоматической установкой Loading статуса.
 
