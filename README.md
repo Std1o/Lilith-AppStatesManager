@@ -284,10 +284,14 @@ override suspend fun signUp(request: SignUpReq) = executeOperation { mainService
 ```
 Чтобы избежать коллизий при использовании нескольких операций на экране, на результат которых UI должен реагировать по-разному, можно задать OperationType.
 
-You don't have to worry about the Loading status collision, it's solved in StatesViewModel (we will talk about it later).
+Вам не нужно беспокоиться о коллизиях лоадера, это решается в StatesViewModel (об этом позже).
 
-Usage example:
+Пример использования:
 ```Kotlin
+enum class CourseAddingOperations : OperationType {
+    CREATE_COURSE, JOIN_COURSE
+}
+
 override suspend fun createCourse(request: CourseCreationReq) =
     executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
 ```
