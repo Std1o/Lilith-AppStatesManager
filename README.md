@@ -313,17 +313,17 @@ StatesViewModel содержит StateFlow для транслирования �
 Также StatesViewModel имеет методы для вызова LoadableData запросов с автоматической установкой Loading статуса.
 
 > [!IMPORTANT]
-> If you use Hilt, create it in your ViewModels package and be sure not to forget to import generated StatesViewModel
+> Если вы используете Dagger 2/Hilt, создайте это в вашем пакете с ViewModel и убедитесь, что не забыли ипортировать сгенерированную StatesViewModel.
 > ```Kotlin
 > @Suppress("unused")
 > class StatesViewModel : ViewModel()
 > ```
-> @HiltViewModel requires subclass of ViewModel. Hilt doesn't see our generated StatesViewModel so Hilt can't check it
+> @HiltViewModel требует подкласса ViewModel. Hilt не видит сгенерированную StatesViewModel, соответственно Hilt не может её проверить.
 
 #### loadData
-Method for calling LoadableData requests, that automatically sets Loading status.
+Метод для вызова LoadableData запросов, который автоматически ставит Loading состояние.
 
-Params: call - lambda that returns LoadableData or parent of LoadableData.
+Параметпы: call - лямбла, возвращающая LoadableData или родителя LoadableData.
 
 At first create a flow of ContentState and a variable to easily update the flow.
 
