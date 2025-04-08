@@ -282,7 +282,7 @@ class RemoteDataSource(private val someRetrofitService: SomeRetrofitService) : B
 ```Kotlin
 override suspend fun signUp(request: SignUpReq) = executeOperation { mainService.signUp(request) }
 ```
-To solve collisions when using multiple operations on screen, the result of which UI should react differently, you can specify OperationType.
+Чтобы избежать коллизий при использовании нескольких операций на экране, на результат которых UI должен реагировать по-разному, можно задать OperationType.
 
 You don't have to worry about the Loading status collision, it's solved in StatesViewModel (we will talk about it later).
 
