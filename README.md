@@ -200,7 +200,7 @@ data class SomeContentState(
 
 ### Создание single ивентов
 #### Event markers
-Вы можете использовать это на уровне sealed класса, и тогда все дочерние элементы будут single.
+Вы можете использовать это на уровне sealed интерфейса, и тогда все дочерние элементы будут single.
 ```Kotlin
 @SingleEvents
 sealed interface MainScreenEventsChild<out R> {
@@ -208,7 +208,7 @@ sealed interface MainScreenEventsChild<out R> {
 }
 ```
 
-Also you can use this in child of parent NOsinfgle sealed class
+Также вы можете использовать single на уровне дочернего элемента в не single sealed интерфейсе.
 ```Kotlin
 @SingleEvent
     data class ErrorSingle(
@@ -218,7 +218,7 @@ Also you can use this in child of parent NOsinfgle sealed class
     ) : OperationState<Nothing>
 ```
 
-If sealed class is single but you need one non single state you can use @NoSingleEvent
+Если sealed interface является single, но вам нужно не single состояние, вы можете использовать аннотацию @NoSingleEvent.
 ```Kotlin
 @NoSingleEvent
     data class Loading(val operationType: OperationType = OperationType.DefaultOperation) :
