@@ -276,9 +276,9 @@ class RemoteDataSource(private val someRetrofitService: SomeRetrofitService) : B
 }
 ```
 
-Method executeOperation() generates OperationState that contains a limited set of states for any request.
+Метод executeOperation() генерирует OperationState, который содержит ограниченный набор состояний для любого запроса.
 
-Usage exmaple:
+Пример использования:
 ```Kotlin
 override suspend fun signUp(request: SignUpReq) = executeOperation { mainService.signUp(request) }
 ```
