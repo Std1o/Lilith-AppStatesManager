@@ -323,7 +323,7 @@ StatesViewModel содержит StateFlow для транслирования �
 #### loadData
 Метод для вызова LoadableData запросов, который автоматически ставит Loading состояние.
 
-Параметпы: call - лямбла, возвращающая LoadableData или родителя LoadableData.
+Параметры: call - лямбла, возвращающая LoadableData или родителя LoadableData.
 
 At first create a flow of ContentState and a variable to easily update the flow.
 
