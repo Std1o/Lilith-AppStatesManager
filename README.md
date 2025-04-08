@@ -323,19 +323,19 @@ StatesViewModel содержит StateFlow для транслирования �
 #### loadData
 Метод для вызова LoadableData запросов, который автоматически ставит Loading состояние.
 
-Параметры: call - лямбла, возвращающая LoadableData или родителя LoadableData.
+Параметры: call - лямбда, возвращающая LoadableData или родителя LoadableData.
 
-At first create a flow of ContentState and a variable to easily update the flow.
+Сначала создайте flow ContentState и переменную для лёгкого обновления flow.
 
-Example:
+Пример:
 ```Kotlin
 private val _contentState = MutableStateFlow(CoursesContentState())
 val contentState = _contentState.asStateFlow()
 private var contentStateVar by stateFlowVar(_contentState)
 ```
-Then you can call loadData().
+Затем вы может вызвать loadData().
 
-Usage example:
+Пример использования:
 ```Kotlin
 viewModelScope.launch {
     loadData { repository.getCourses() }.collect {
@@ -345,11 +345,11 @@ viewModelScope.launch {
 }
 ```
 #### loadDataFlow
-Method for calling LoadableData requests, that automatically sets Loading status
+Метод для вызова LoadableData запросов, который автоматически ставит Loading состояние.
 
-Params: call - lambda that returns flow of LoadableData or parent of LoadableData
+Параметры: call - лямбда, возвращающая LoadableData или родителя LoadableData.
 
-Usage example:
+Пример использования:
 ```Kotlin
 viewModelScope.launch {
     // Here repository.getCourses() returns Flow of LoadableData
@@ -360,7 +360,7 @@ viewModelScope.launch {
 ```
 
 #### executeOperation
-Launches operations and updating last operation state based on the response.
+Запускает операции и обновляет последнее состояние операции на основе ответа.
 
 <img width="585" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/a65f0800-3ffd-413a-aeca-966825e0e664">
 
