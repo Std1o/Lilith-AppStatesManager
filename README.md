@@ -503,12 +503,12 @@ UIReactionOnLastOperationState(
 >
 > Для Success и Empty204 состояший рекомендуется выполнять действия во ViewModel или установить некторое функциональное состояние и уже с ним работать в UI.
 
-This part of the code is not included in the library, so not to make a dependency on Jetpack Compose.
+Эта часть кода не включена в библиотеку, чтобы не создавать зависимость от Jetpack Compose.
 
 ### StillLoading аннотация
-For states from UseCase. Mark with it if loader should be still shown. Note that in this case, UseCase must return flow.
+Для состояний из UseCase. Отметьте, если лоадер всё ещё должен отображаться. Обратите внимание, что в этом случае UseCase должен возвращать flow.
 
-Example:
+Пример:
 ```Kotlin
 @OperationState
 sealed interface ValidatableOperationState<out R> {
