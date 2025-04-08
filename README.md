@@ -25,7 +25,7 @@
         3. [executeOperation](#executeoperation)
         4. [executeEmptyOperation](#executeemptyoperation)
         5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
-        6. [Important information](#important-information)
+        6. [Важная информация](#важная-информация)
     8. [Реакция UI на состояние](#реакция-UI-на-состояние)
     9. [StillLoading аннотация](#stillloading-аннотация)
 
@@ -424,9 +424,9 @@ viewModelScope.launch {
 Об extension'е protect() будет далее.
 
 #### executeOperationAndIgnoreData
-If it doesn't matter to you what response data will be returned on success.
+Если для вас неважно, какие данные ответа будут возвращены в случае успеха.
 
-Example:
+Пример:
 ```Kotlin
 viewModelScope.launch {
     val requestResult = executeOperationAndIgnoreData({ loginUseCase(email, password) }) {
@@ -436,7 +436,7 @@ viewModelScope.launch {
 }
 ```
 
-#### Important information
+#### Важная информация
 If you don't use either val/var or collect for the methods listed above, you need to call protect().
 
 Example:
