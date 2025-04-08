@@ -185,9 +185,9 @@ sealed interface CustomLoadableData<out R> {
 sealed interface LoadableDataTrigger<out R>
 ```
 > [!IMPORTANT]
-> A hierarchy here is also reversed
+> Иерархия здесь тоже обратная
 
-LoadableData is used in ContentState. It looks something like this:
+LoadableData используется ContentState. Это выглядит примерно так:
 ```Kotlin
 @ContentState
 data class SomeContentState(
@@ -200,7 +200,7 @@ data class SomeContentState(
 
 ### Создание single ивентов
 #### Event markers
-You can use this at the sealed class level, and then all childs will be single.
+Вы можете использовать это на уровне sealed класса, и тогда все дочерние элементы будут single.
 ```Kotlin
 @SingleEvents
 sealed interface MainScreenEventsChild<out R> {
