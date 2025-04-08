@@ -403,10 +403,10 @@ viewModelScope.launch {
 }
 ```
 > [!NOTE]
-> All "execute" methods can take in functionality state, OperationState or flow of ever of both
+> Все методы "execute" могут принимать функциональное состояние, OperationState или поток любого из них
 
 #### executeEmptyOperation
-If you are sure that method return 204 response code instead of 200.
+Если вы уверены, что метод возвращает код 204 вместо 200
 
 onEmpty204 - An optional callback function that may be called for some ViewModel businesses.
 
