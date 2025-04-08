@@ -408,9 +408,9 @@ viewModelScope.launch {
 #### executeEmptyOperation
 Если вы уверены, что метод возвращает код 204 вместо 200
 
-onEmpty204 - An optional callback function that may be called for some ViewModel businesses.
+onEmpty204 - Необязательный коллбек, который может быть вызван для некоторых действий во ViewModel.
 
-Example:
+Пример:
 ```Kotlin
 viewModelScope.launch {
     executeEmptyOperation({ repository.deleteCourse(courseId) }) { // it's onEmpty204 callback
@@ -421,7 +421,7 @@ viewModelScope.launch {
     }.protect()
 }
 ```
-We will talk about the protect() extension later.
+Об extension'е protect() будет далее.
 
 #### executeOperationAndIgnoreData
 If it doesn't matter to you what response data will be returned on success.
