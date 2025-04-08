@@ -499,9 +499,9 @@ UIReactionOnLastOperationState(
 )
 ```
 > [!NOTE]
-> This is a composable fun that handles OperationState.Loading and OperationState.Error.
+> Это composable-функция, которая обрабатывает OperationState.Loading и OperationState.Error.
 >
-> For Success and Empty204 states, it is recommended to perform actions in your ViewModel or set some state to your functionality state and work in the UI already with it.
+> Для Success и Empty204 состояший рекомендуется выполнять действия во ViewModel или установить некторое функциональное состояние и уже с ним работать в UI.
 
 This part of the code is not included in the library, so not to make a dependency on Jetpack Compose.
 
