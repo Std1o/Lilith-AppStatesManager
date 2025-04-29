@@ -210,6 +210,7 @@ open class StatesViewModel : ViewModel() {
         if (isFlowOfOperationState(kType) == false) {
             throw NoFlowOfOperationStateFoundException(kType)
         }
+        val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType)
         _events.value = OperationState.Loading(operationType)
         _lastOperationState.value = OperationState.Loading(operationType)
         val mutableStateFlow = call().stateIn(
@@ -458,7 +459,6 @@ open class StatesViewModel : ViewModel() {
             throw NoFlowOfOperationStateFoundException(kType)
         }
         val isSingle = isSealedInterfaceSingle(kType) && !isNotSingleClassInSingleInterface(kType)
-
         _events.value = OperationState.Loading(operationType)
         _lastOperationState.value = OperationState.Loading(operationType)
         val mutableStateFlow = call().stateIn(
