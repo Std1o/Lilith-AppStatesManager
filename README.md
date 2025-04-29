@@ -462,7 +462,7 @@ val loginState by viewModel.loginState.collectAsState() // example of functional
 @Composable
 fun <T> UIReactionOnLastOperationState(
     operationState: OperationState<T>,
-    onErrorReceived: () -> Unit,
+    event: OperationState<T>,
     snackbarHostState: SnackbarHostState,
     onLoading: ((OperationType) -> Unit)? = null,
     onError: ((String, Int, OperationType) -> Unit)? = null
@@ -470,19 +470,19 @@ fun <T> UIReactionOnLastOperationState(
     with(operationState) {
         when (this) {
             is OperationState.Loading -> onLoading?.invoke(operationType) ?: LoadingIndicator()
-            is OperationState.Error -> {
-                LaunchedEffect(Unit) {
+            else -> {}
+        }
+    }
+    with(event) {
+        when (this) {
+            is OperationState.ErrorSingle -> {
+                LaunchedEffect(event) { // the key define when the block is relaunched
                     onError?.invoke(exception, code, operationType)
                         ?: snackbarHostState.showSnackbar(exception)
-                    onErrorReceived()
                 }
             }
 
-            is OperationState.Empty204,
-            is OperationState.Success,
-            is OperationState.NoState -> {
-                // do nothing
-            }
+            else -> {}
         }
     }
 }
