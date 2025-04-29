@@ -113,9 +113,9 @@ plugins {
 ```Gradle
 dependencies {
 
-    implementation 'com.github.Std1o:Lilith-AppStatesManager:0.4.5'
+    implementation 'com.github.Std1o:Lilith-AppStatesManager:0.4.9'
     // it must be before Dagger2/Hilt ksp
-    ksp 'com.github.Std1o:Lilith-AppStatesManager:0.4.5'
+    ksp 'com.github.Std1o:Lilith-AppStatesManager:0.4.9'
 
     // Requirements
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
