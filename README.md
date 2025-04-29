@@ -25,7 +25,7 @@
         3. [executeOperation](#executeoperation)
         4. [executeEmptyOperation](#executeemptyoperation)
         5. [executeOperationAndIgnoreData](#executeoperationandignoredata)
-        6. [Important information](#important-information)
+        6. [Важная информация](#важная-информация)
     8. [Реакция UI на состояние](#реакция-UI-на-состояние)
     9. [StillLoading аннотация](#stillloading-аннотация)
 
@@ -113,10 +113,9 @@ plugins {
 ```Gradle
 dependencies {
 
-    // God Of App States
-    implementation 'com.github.Std1o:GodOfAppStates:0.3.5'
+    implementation 'com.github.Std1o:Lilith-AppStatesManager:0.4.5'
     // it must be before Dagger2/Hilt ksp
-    ksp 'com.github.Std1o:GodOfAppStates:0.3.5'
+    ksp 'com.github.Std1o:Lilith-AppStatesManager:0.4.5'
 
     // Requirements
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -127,18 +126,18 @@ dependencies {
 ## Использование
 ### Генерация OperationState
 > [!NOTE]  
-> To generate the OperationState, you need to create at least one functionality state marked with an annotation.
+> Чтобы сгенерировать OperationState нужно создать как минимум одно функциональное состояние, помеченное аннотацией.
 >
-> Functionality state is a state that you create in your [Use Cases](https://developer.android.com/topic/architecture/domain-layer) if the OperationState states are not enough for you or if the state must be long-term.
+> Функциональное состояние – это состояние, которое вы создаёте в вашем [Use Cases](https://developer.android.com/topic/architecture/domain-layer) если OperationState состояний недостаточно или требуется долгосрочное состояние.
 >
-> If you don't need your functionality state yet, you can write it and delete it as soon as a useful one appears.
+> Если вам пока что не нужно функциональное состояние, вы можете написать это. Как только появится полезное функциональное состояние, можете удалить это.
 >
 > ```Kotlin
 > @OperationState
 > sealed interface OperationStateTrigger<out R>
 > ```
 
-To create your own functionality state with access to the base operations states (Success, Error, Loading,  Empty204, NoState) just create something like this:
+Чтобы создать ваше собственное функциональное состояние с доступом к базовым состояниям операций (Success, Error, Loading,  Empty204, NoState) просто создайте что-то в роде этого:
 ```Kotlin
 @OperationState
 sealed interface YourFunctionalityState<out R> {
@@ -147,28 +146,28 @@ sealed interface YourFunctionalityState<out R> {
     data object State3 : YourFunctionalityState<Nothing>
 }
 ```
-All operation states must be in the same package.
+Все состояния операций должны находиться в одном пакете.
 
 > [!IMPORTANT]  
-> You can create a hierarchy of your states, but keep in mind that it should be reverse. [Why?](https://github.com/Std1o/GodOfAppStates/wiki/Reverse-hierarchy)
+> Вы можете создать иерархию ваших состояний, но имейте в виду, что она должна быть обратной. [Почему?](https://github.com/Std1o/GodOfAppStates/wiki/Reverse-hierarchy)
 > 
-> You need to mark  with an annotation only semantically base class in your hierarchy.
+> Вам нужно пометить аннотацией только семантически базовый класс в вашей иерархии.
 > 
-> Example:
+> Пример:
 > 
 > <img width="542" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/e047952a-592c-47bb-91b8-f731ddb12f88">
 
-You can see real examples [here](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
+Вы можете посмотреть реальный пример использования [здесь](https://github.com/Std1o/StudentTestingSystem/tree/main/app/src/main/java/student/testing/system/domain/states/operationStates)
 
 > [!IMPORTANT]
-> OperationState contains the result of operation and is not intended for long-term storage state.
+> OperationState содержит результат операции и не предназначен для долгосрочных состояний.
 >
-> For long-term states, create your own functionality states marked with an annotation.
+> Для долгосрочных состоянй создайте собственные функциональные состояния, помеченные аннотацией.
 
 ### Генерация LoadableData
-LoadableData is state of some view or composable fun. Thanks to it, the state of the component is isolated from the rest of the screen, which allows you to increase UX and contributes to the absence of collisions.
+LoadableData – это состояние некоторого View или composable-функции. Благодаря ему, состояние компонента изолировано от остальной части экрана, что позволяет улучшить UX и способствует отсутствию коллизий.
 
-To create a custom LoadableData, just mark your sealed interface with @LoadableData annotation:
+Чтобы создать кастомную LoadableData, просто пометьте ваш sealed interface аннотацией @LoadableData:
 ```Kotlin
 @LoadableData
 sealed interface CustomLoadableData<out R> {
@@ -178,16 +177,16 @@ sealed interface CustomLoadableData<out R> {
 }
 ```
 
-If you don't need a custom LoadableData yet, you can write it and delete it as soon as a useful one appears.
+Если вам пока что не нужен кастомный LoadableData, вы можете написать это, и удалить, как только появится полезный LoadableData.
 
 ```Kotlin
 @LoadableData
 sealed interface LoadableDataTrigger<out R>
 ```
 > [!IMPORTANT]
-> A hierarchy here is also reversed
+> Иерархия здесь тоже обратная
 
-LoadableData is used in ContentState. It looks something like this:
+LoadableData используется ContentState. Это выглядит примерно так:
 ```Kotlin
 @ContentState
 data class SomeContentState(
@@ -200,7 +199,7 @@ data class SomeContentState(
 
 ### Создание single ивентов
 #### Event markers
-You can use this at the sealed class level, and then all childs will be single.
+Вы можете использовать это на уровне sealed интерфейса, и тогда все дочерние элементы будут single.
 ```Kotlin
 @SingleEvents
 sealed interface MainScreenEventsChild<out R> {
@@ -208,7 +207,7 @@ sealed interface MainScreenEventsChild<out R> {
 }
 ```
 
-Also you can use this in child of parent NOsinfgle sealed class
+Также вы можете использовать single на уровне дочернего элемента в не single sealed интерфейсе.
 ```Kotlin
 @SingleEvent
     data class ErrorSingle(
@@ -218,7 +217,7 @@ Also you can use this in child of parent NOsinfgle sealed class
     ) : OperationState<Nothing>
 ```
 
-If sealed class is single but you need one non single state you can use @NoSingleEvent
+Если sealed interface является single, но вам нужно не single состояние, вы можете использовать аннотацию @NoSingleEvent.
 ```Kotlin
 @NoSingleEvent
     data class Loading(val operationType: OperationType = OperationType.DefaultOperation) :
@@ -226,50 +225,49 @@ If sealed class is single but you need one non single state you can use @NoSingl
 ```
 
 #### SingleEventFlow
-Class for single events flow.
-In other words, the action is performed only once.
-And it will not be executed again even if the device configuration was changed in.
+Класс для flow single ивентов. 
+Другими словами, действие выполнится только один раз, и не будет запущено снова при смене конфигурации устройства.
 
-Usage example №1
+Пример использования №1
 ```Kotlin
 private val _screenEvents = SingleEventFlow<MainScreenEventsChild<String>>()
 val screenEvents = _screenEvents.asSharedFlow()
 ```
 
-Usage example №2
+Пример использования №2
 ```Kotlin
 private val _resultReviewEvent = SingleEventFlow<TestResult>()
 val resultReviewFlow = _resultReviewEvent.asSharedFlow()
 ```
 
 ### Включение кодогенерации
-When there is at least one state marked with @OperationState annotation and at least one state marked with @LoadableData annotation, you can start generating some library classes.
+Если есть хотя бы одно состояние, помеченное аннотацией @OperationState, и хотя бы одно состояние, помеченное аннотацией @LoadableData, можно приступить к генерации классов библиотеки.
 
-To do this, mark your Application class with @AllStatesReadyToUse annotation.
+Чтобы сделать это, пометьте ваш Application класс аннотацией @AllStatesReadyToUse.
 ```Kotlin
 @AllStatesReadyToUse
 class App : Application()
 ```
 
-If you have created an Application class just now, don't forget to specify it in manifest.
+Если вы создали Application класс только что, не забудьте указать его в манифесте.
 
 <img width="265" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/6e3d9c3b-7f6f-4bcd-85e0-3dfacdcc6725">
 
-After that, rebuild your project. How to do this is written in the next section.
+После этого сделайте rebuild проекта. Как это сделать написано в следующей секции.
 
 ### Добавление новых состояний
-During app development most likely you will need to create your own functionality states or custom LoadableData.
+Во время разработки приложения, скорее всего, вам потребуется создать свои собственные функциональные состояния или кастомную LoadableData.
 
-To make basic states available for recently added annotated states, you need to "make module".
+Чтобы сделать базовые состояния доступными для недавно добавленных аннотированных состояний, вам нужно нажать "make module".
 
 <img width="554" alt="Снимок экрана 2023-10-27 в 20 44 41" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/36e4df4d-3cba-4115-9bed-f6ba7a7bf96c">
 
-If it doesn't help, then rebuild project
+Если это не помогло, нажмите "rebuild project"
 
 <img width="498" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/85935610-54cf-477a-ba08-9bcfd168cb30">
 
 ### BaseRemoteDataSource
-This class has 2 methods. To use them, inherit your RemoteDataSource from BaseRemoteDataSource.
+Этот класс имеет 2 метода. Чтобы использовать их, наследуйте свой RemoteDataSource от BaseRemoteDataSource.
 
 ```Kotlin
 class RemoteDataSource(private val someRetrofitService: SomeRetrofitService) : BaseRemoteDataSource() {
@@ -277,66 +275,66 @@ class RemoteDataSource(private val someRetrofitService: SomeRetrofitService) : B
 }
 ```
 
-Method executeOperation() generates OperationState that contains a limited set of states for any request.
+Метод executeOperation() генерирует OperationState, который содержит ограниченный набор состояний для любого запроса.
 
-Usage exmaple:
+Пример использования:
 ```Kotlin
 override suspend fun signUp(request: SignUpReq) = executeOperation { mainService.signUp(request) }
 ```
-To solve collisions when using multiple operations on screen, the result of which UI should react differently, you can specify OperationType.
+Чтобы избежать коллизий при использовании нескольких операций на экране, на результат которых UI должен реагировать по-разному, можно задать OperationType.
 
-You don't have to worry about the Loading status collision, it's solved in StatesViewModel (we will talk about it later).
+Вам не нужно беспокоиться о коллизиях лоадера, это решается в StatesViewModel (об этом позже).
 
-Usage example:
+Пример использования:
 ```Kotlin
 override suspend fun createCourse(request: CourseCreationReq) =
     executeOperation(CourseAddingOperations.CREATE_COURSE) { mainService.createCourse(request) }
 ```
-Then you can get OperationType in UI if state is Success, Error or Empty204.
+Затем вы можете получить OperationType в UI если состояние Success, Error или Empty204.
 
-There is example of your OperationType:
+Пример вашего OperationType:
 ```Kotlin
 enum class CourseAddingOperations : OperationType {
     CREATE_COURSE, JOIN_COURSE
 }
 ```
 
-Method loadData() generates LoadableData that contains a limited set of loading data states.
+Метод loadData() генерирует LoadableData, который содержит ограниченный набор состояний загружаемых данных.
 
-Usage example:
+Пример использования:
 ```Kotlin
 override suspend fun getCourses() = loadData { mainService.getCourses() }
 ```
 
 ### StatesViewModel
-StatesViewModel contains a StateFlow that broadcasts last operation state, and a method that launching operations and updating last operation state based on the response.
+StatesViewModel содержит StateFlow для транслирования последнего состояния операции и методы для выполнения операций с автоматическим обновлением состояний.
 
-Also StatesViewModel has methods for calling LoadableData requests with automatically setting Loading status.
+Также StatesViewModel имеет методы для вызова LoadableData запросов с автоматической установкой Loading статуса.
 
 > [!IMPORTANT]
-> If you use Hilt, create it in your ViewModels package and be sure not to forget to import generated StatesViewModel
+> Если вы используете Dagger 2/Hilt, создайте это в вашем пакете с ViewModel и убедитесь, что не забыли ипортировать сгенерированную StatesViewModel.
 > ```Kotlin
 > @Suppress("unused")
 > class StatesViewModel : ViewModel()
 > ```
-> @HiltViewModel requires subclass of ViewModel. Hilt doesn't see our generated StatesViewModel so Hilt can't check it
+> @HiltViewModel требует подкласса ViewModel. Hilt не видит сгенерированную StatesViewModel, соответственно Hilt не может её проверить.
 
 #### loadData
-Method for calling LoadableData requests, that automatically sets Loading status.
+Метод для вызова LoadableData запросов, который автоматически ставит Loading состояние.
 
-Params: call - lambda that returns LoadableData or parent of LoadableData.
+Параметры: call - лямбда, возвращающая LoadableData или родителя LoadableData.
 
-At first create a flow of ContentState and a variable to easily update the flow.
+Сначала создайте flow ContentState и переменную для лёгкого обновления flow.
 
-Example:
+Пример:
 ```Kotlin
 private val _contentState = MutableStateFlow(CoursesContentState())
 val contentState = _contentState.asStateFlow()
 private var contentStateVar by stateFlowVar(_contentState)
 ```
-Then you can call loadData().
+Затем вы может вызвать loadData().
 
-Usage example:
+Пример использования:
 ```Kotlin
 viewModelScope.launch {
     loadData { repository.getCourses() }.collect {
@@ -346,11 +344,11 @@ viewModelScope.launch {
 }
 ```
 #### loadDataFlow
-Method for calling LoadableData requests, that automatically sets Loading status
+Метод для вызова LoadableData запросов, который автоматически ставит Loading состояние.
 
-Params: call - lambda that returns flow of LoadableData or parent of LoadableData
+Параметры: call - лямбда, возвращающая LoadableData или родителя LoadableData.
 
-Usage example:
+Пример использования:
 ```Kotlin
 viewModelScope.launch {
     // Here repository.getCourses() returns Flow of LoadableData
@@ -361,13 +359,13 @@ viewModelScope.launch {
 ```
 
 #### executeOperation
-Launches operations and updating last operation state based on the response.
+Запускает операции и обновляет последнее состояние операции на основе ответа.
 
 <img width="585" alt="image" src="https://github.com/Std1o/GodOfAppStates/assets/37378410/a65f0800-3ffd-413a-aeca-966825e0e664">
 
-All "execute" methods can work with your functionality state. If current state is some state of OperationState it automatically send to lastOperationState which is contained in StatesViewModel. Then method returns current state.
+Все "execute" методы могут работать с вашим функциональным состоянием. Если текущее состояние является некоторым состоянием OperationState, оно автоматически отправляется в lastOperationState, которое содержится в StatesViewModel. Затем метод возвращает текущее состояние.
 
-Example:
+Пример:
 ```Kotlin
 // Some functionality state if you need it
 private val _testState = MutableStateFlow<TestCreationState<Test>>(OperationState.NoState)
@@ -387,9 +385,9 @@ viewModelScope.launch {
     }
 }
 ```
-In the previous example, lambda returned functionality state. You can also call this method passing lambda that returns flow of functionality state or OperationState.
+В предыдущем примере лямбда-выражение возвращало функциональное состояние. Вы также можете вызвать этот метод, передавая лямбда-выражение, возвращающее flow функционального состояния или OperationState.
 
-Example:
+Пример:
 ```Kotlin
 viewModelScope.launch {
     executeOperation(
@@ -404,14 +402,14 @@ viewModelScope.launch {
 }
 ```
 > [!NOTE]
-> All "execute" methods can take in functionality state, OperationState or flow of ever of both
+> Все методы "execute" могут принимать функциональное состояние, OperationState или поток любого из них
 
 #### executeEmptyOperation
-If you are sure that method return 204 response code instead of 200.
+Если вы уверены, что метод возвращает код 204 вместо 200
 
-onEmpty204 - An optional callback function that may be called for some ViewModel businesses.
+onEmpty204 - Необязательный коллбек, который может быть вызван для некоторых действий во ViewModel.
 
-Example:
+Пример:
 ```Kotlin
 viewModelScope.launch {
     executeEmptyOperation({ repository.deleteCourse(courseId) }) { // it's onEmpty204 callback
@@ -422,12 +420,12 @@ viewModelScope.launch {
     }.protect()
 }
 ```
-We will talk about the protect() extension later.
+Об extension'е protect() будет далее.
 
 #### executeOperationAndIgnoreData
-If it doesn't matter to you what response data will be returned on success.
+Если для вас неважно, какие данные ответа будут возвращены в случае успеха.
 
-Example:
+Пример:
 ```Kotlin
 viewModelScope.launch {
     val requestResult = executeOperationAndIgnoreData({ loginUseCase(email, password) }) {
@@ -437,24 +435,24 @@ viewModelScope.launch {
 }
 ```
 
-#### Important information
-If you don't use either val/var or collect for the methods listed above, you need to call protect().
+#### Важная информация
+Если вы не используете ни val/var, ни collect для перечисленных выше методов, вам необходимо вызвать protect().
 
-Example:
+Пример:
 ```Kotlin
 executeOperation({ createTestUseCase(testCreationReq) }, Test::class).protect()
 ```
-This is necessary because otherwise kotlin compiler generates incorrect lambda return type in the invokeSuspend() method.
+Это необходимо, поскольку в противном случае компилятор kotlin генерирует неверный возвращаемый тип лямбды в методе invokeSuspend().
 
 ### Реакция UI на состояние
-Collecting of your states will look something like this:
+Сбор ваших состояний будет выглядеть примерно так:
 ```Kotlin
 val contentState by viewModel.contentState.collectAsState() // Then you can use contentState.someLoadableData
 val lastOperationState by viewModel.lastOperationState.collectAsState() // This is in the StatesViewModel
 // Please don't check the states from OperationState by this val, there are lastOperationState for this
 val loginState by viewModel.loginState.collectAsState() // example of functionality state
 ```
-If you are using Jetpack Compose, just create UIReactionOnLastOperationState.kt and paste this code there:
+Если вы используете Jetpack Compose, просто создайте UIReactionOnLastOperationState.kt и вставьте туда следующий код:
 ```Kotlin
 /**
  * Used for temporary and short-lived states caused by the last operation
@@ -489,9 +487,9 @@ fun <T> UIReactionOnLastOperationState(
     }
 }
 ```
-You can modify this function as you want.
+Вы можете модифиуировать эту функцию как угодно.
 
-Then just add this to your screen:
+Затем просто добавьте функцию на экран:
 ```Kotlin
 UIReactionOnLastOperationState(
     lastOperationState,
@@ -500,16 +498,16 @@ UIReactionOnLastOperationState(
 )
 ```
 > [!NOTE]
-> This is a composable fun that handles OperationState.Loading and OperationState.Error.
+> Это composable-функция, которая обрабатывает OperationState.Loading и OperationState.Error.
 >
-> For Success and Empty204 states, it is recommended to perform actions in your ViewModel or set some state to your functionality state and work in the UI already with it.
+> Для Success и Empty204 состояший рекомендуется выполнять действия во ViewModel или установить некторое функциональное состояние и уже с ним работать в UI.
 
-This part of the code is not included in the library, so not to make a dependency on Jetpack Compose.
+Эта часть кода не включена в библиотеку, чтобы не создавать зависимость от Jetpack Compose.
 
 ### StillLoading аннотация
-For states from UseCase. Mark with it if loader should be still shown. Note that in this case, UseCase must return flow.
+Для состояний из UseCase. Отметьте, если лоадер всё ещё должен отображаться. Обратите внимание, что в этом случае UseCase должен возвращать flow.
 
-Example:
+Пример:
 ```Kotlin
 @OperationState
 sealed interface ValidatableOperationState<out R> {
