@@ -491,11 +491,13 @@ fun <T> UIReactionOnLastOperationState(
 
 Затем просто добавьте функцию на экран:
 ```Kotlin
-UIReactionOnLastOperationState(
-    lastOperationState,
-    { testsVM.onErrorReceived() },
-    snackbarHostState
-)
+val lastOperationState by viewModel.lastOperationState.collectAsState()
+val events by viewModel.events.collectAsState(OperationState.NoState)
+val snackbarHostState = remember { SnackbarHostState() }
+
+....
+
+UIReactionOnLastOperationState(lastOperationState, events, snackbarHostState)
 ```
 > [!NOTE]
 > Это composable-функция, которая обрабатывает OperationState.Loading и OperationState.Error.
