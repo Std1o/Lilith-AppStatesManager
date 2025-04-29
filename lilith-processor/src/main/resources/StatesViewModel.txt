@@ -181,7 +181,6 @@ open class StatesViewModel : ViewModel() {
                 if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
                     _events.value =
                         buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
-                    _events.value = OperationState.NoState
                 }
             }
             requestResult
@@ -237,7 +236,6 @@ open class StatesViewModel : ViewModel() {
                 _lastOperationState.value = operationState
                 if (operationState::class.hasAnnotation<SingleEvent>() == true || isSingle) {
                     _events.value = operationState
-                    _events.value = OperationState.NoState
                 }
                 pollFromQueueForFlow(requestResult)
                 showLoadingForFlowIfNeed()
@@ -420,7 +418,6 @@ open class StatesViewModel : ViewModel() {
                 if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
                     _events.value =
                         buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
-                    _events.value = OperationState.NoState
                 }
             }
             requestResult
@@ -491,7 +488,6 @@ open class StatesViewModel : ViewModel() {
                 _lastOperationState.value = operationState
                 if (operationState::class.hasAnnotation<SingleEvent>() == true || isSingle) {
                     _events.value = operationState
-                    _events.value = OperationState.NoState
                 }
                 pollFromQueueForFlow(requestResult)
                 showLoadingForFlowIfNeed()
