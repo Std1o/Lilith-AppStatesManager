@@ -172,13 +172,14 @@ open class StatesViewModel : ViewModel() {
         val request = viewModelScope.async {
             // Call launching
             requestResult = call()
-            _lastOperationState.value =
-                buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
             requestResult?.let {
                 if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
                     _events.value =
                         buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
                     _events.value = OperationState.NoState
+                } else {
+                    _lastOperationState.value =
+                        buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
                 }
             }
             requestResult
@@ -404,14 +405,15 @@ open class StatesViewModel : ViewModel() {
         val request = viewModelScope.async {
             // Call launching
             requestResult = call()
-            // Working with OperationState
-            _lastOperationState.value =
-                buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
             requestResult?.let {
                 if (it::class.hasAnnotation<SingleEvent>() == true || isSingle) {
                     _events.value =
                         buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
                     _events.value = OperationState.NoState
+                } else {
+                    // Working with OperationState
+                    _lastOperationState.value =
+                        buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
                 }
             }
             requestResult
