@@ -403,7 +403,7 @@ open class StatesViewModel : ViewModel() {
         val request = viewModelScope.async {
             // Call launching
             requestResult = call()
-            val operationState = buildOperationState<State, T>(requestResult, onEmpty204, onSuccess)
+            val operationState = buildOperationStateNoData<State>(requestResult, onEmpty204, onSuccess)
             // Working with OperationState
             _lastOperationState.value = operationState
             requestResult?.let {
