@@ -113,9 +113,9 @@ plugins {
 ```Gradle
 dependencies {
 
-    implementation 'com.github.Std1o:Lilith-AppStatesManager:0.4.5'
+    implementation 'com.github.Std1o:Lilith-AppStatesManager:0.4.9'
     // it must be before Dagger2/Hilt ksp
-    ksp 'com.github.Std1o:Lilith-AppStatesManager:0.4.5'
+    ksp 'com.github.Std1o:Lilith-AppStatesManager:0.4.9'
 
     // Requirements
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -491,11 +491,13 @@ fun <T> UIReactionOnLastOperationState(
 
 Затем просто добавьте функцию на экран:
 ```Kotlin
-UIReactionOnLastOperationState(
-    lastOperationState,
-    { testsVM.onErrorReceived() },
-    snackbarHostState
-)
+val lastOperationState by viewModel.lastOperationState.collectAsState()
+val events by viewModel.events.collectAsState(OperationState.NoState)
+val snackbarHostState = remember { SnackbarHostState() }
+
+....
+
+UIReactionOnLastOperationState(lastOperationState, events, snackbarHostState)
 ```
 > [!NOTE]
 > Это composable-функция, которая обрабатывает OperationState.Loading и OperationState.Error.
