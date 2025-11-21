@@ -106,6 +106,14 @@ open class StatesViewModel : ViewModel() {
         return stateFlow
     }
 
+    fun clearOperationState() {
+        _lastOperationState.value = OperationState.NoState
+    }
+
+    fun clearEvents() {
+        _events.value = OperationState.NoState
+    }
+
 
     // executeOperation()
     // __________________________________________________________________________________
