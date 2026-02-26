@@ -49,10 +49,10 @@ import kotlin.reflect.jvm.reflect
  */
 open class StatesViewModel : ViewModel() {
 
-    private val _lastOperationState = MutableStateFlow<OperationState<Any>>(OperationState.NoState)
+    protected val _lastOperationState = MutableStateFlow<OperationState<Any>>(OperationState.NoState)
     val lastOperationState = _lastOperationState.asStateFlow()
 
-    private val _events = SingleEventFlow<OperationState<Any>>()
+    protected val _events = SingleEventFlow<OperationState<Any>>()
     val events = _events.asSharedFlow()
 
     private val requestsQueue = LinkedList<String>()
